@@ -1,0 +1,11 @@
+{
+  "name": "lumo_wasm",
+  "version": "0.1.0",
+  "files": [
+    "lumo_wasm_bg.wasm",
+    "lumo_wasm.js",
+    "lumo_wasm.d.ts"
+  ],
+  "main": "lumo_wasm.js",
+  "types": "lumo_wasm.d.ts"
+}
