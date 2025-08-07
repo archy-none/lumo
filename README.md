@@ -68,13 +68,13 @@ wasm-pack build --target web
 ### コマンドラインインターフェース
 ```bash
 # Lumoファイルをコンパイル
-lumo example/fizzbuzz.ms
+lumo example/fizzbuzz.lm
 
 # 型推論サマリーを表示
-lumo example/fizzbuzz.ms --summary
+lumo example/fizzbuzz.lm --summary
 
 # Node.jsランタイムでコンパイル・実行
-node run.mjs example/fizzbuzz.ms
+node run.mjs example/fizzbuzz.lm
 ```
 
 ### REPLモード
@@ -276,8 +276,8 @@ cargo build
 cargo test
 
 # サンプルのテスト
-node run.mjs example/fizzbuzz.ms
-node run.mjs example/app.ms
+node run.mjs example/fizzbuzz.lm
+node run.mjs example/app.lm
 ```
 
 ### ドキュメントのビルド
