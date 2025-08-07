@@ -11,7 +11,7 @@ const exampleFieldInput = document.getElementById("example-field");
 const exampleSelectBtn = document.getElementById("example-select");
 
 exampleSelectBtn.addEventListener("click", async () => {
-    const exampleCodeUrl = `https://raw.githubusercontent.com/archy-none/lumo/refs/heads/master/example/${exampleFieldInput.value}.ms`;
+    const exampleCodeUrl = `https://raw.githubusercontent.com/archy-none/lumo/refs/heads/master/example/${exampleFieldInput.value}.lm`;
     const response = await fetch(exampleCodeUrl);
     codeEditor.value = await response.text();
 });
