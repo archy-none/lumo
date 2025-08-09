@@ -106,14 +106,9 @@ impl Node for Expr {
         Some(match self {
             Expr::Operator(oper) => oper.compile(ctx)?,
             Expr::Variable(name) => {
-                format!(
-                    "({}.get ${name})",
-                    if ctx.global_type.contains_key(name) {
-                        "global"
-                    } else {
-                        "local"
-                    }
-                )
+                let is_global = ctx.global_type.contains_key(name);
+                let scope = if is_global { "global" } else { "local" };
+                format!("({scope}.get ${name})",)
             }
             Expr::Literal(literal) => literal.compile(ctx)?,
             Expr::Call(name, args) => {
