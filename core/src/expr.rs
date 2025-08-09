@@ -214,7 +214,11 @@ impl Node for Expr {
                     let var_ctx = ctx.variable_type.clone();
                     for (params, arg) in params.iter().zip(args) {
                         let typ = arg.type_infer(ctx)?;
-                        ctx.variable_type.insert(params.to_owned(), typ);
+                        if let Some(original_var) = ctx.variable_type.get(params).cloned() {
+                            type_check!(typ, original_var, ctx)?;
+                        } else {
+                            ctx.variable_type.insert(params.to_owned(), typ);
+                        }
                     }
                     let typ = expr.type_infer(ctx)?;
                     ctx.variable_type = var_ctx;
