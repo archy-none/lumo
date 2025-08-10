@@ -132,6 +132,7 @@ impl Node for Expr {
                         let var = Expr::Variable(param.to_owned()).compile(ctx)?;
                         body = body.replace(&var, &arg.compile(ctx)?);
                     }
+                      ctx.variable_type.extend(old_types);
                     body
                 } else {
                     return None;
