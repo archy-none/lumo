@@ -119,8 +119,12 @@ impl Node for Expr {
                         .collect::<Option<Vec<_>>>()?;
                     format!("(call ${name} {})", join!(args))
                 } else if let Some((params, expr)) = ctx.macro_code.get(name).cloned() {
+                    let mut old_types = IndexMap::new();
                     for (param, arg) in params.iter().zip(args) {
                         let typ = arg.type_infer(ctx)?;
+                        if let Some(original_var) = ctx.variable_type.get(param).cloned() {
+                            old_types.insert(param.to_owned(), original_var);
+                        }
                         ctx.variable_type.insert(param.to_owned(), typ);
                     }
                     let mut body = expr.compile(ctx)?;
