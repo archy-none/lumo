@@ -93,6 +93,20 @@ macro_rules! type_check {
 }
 
 #[macro_export]
+macro_rules! compile_arithmetic {
+    ($oper: expr, $self: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
+        type_check!($lhs, $rhs, $ctx)?;
+        format!(
+            "({}.{} {} {})",
+            $lhs.type_infer($ctx)?.compile($ctx)?,
+            $oper,
+            $lhs.compile($ctx)?,
+            $rhs.compile($ctx)?
+        )
+    }};
+}
+
+#[macro_export]
 macro_rules! compile_compare {
     ($oper: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
         let ret = type_check!($lhs, $rhs, $ctx)?.compile($ctx)?;
@@ -108,6 +122,16 @@ macro_rules! compile_compare {
         let ret = $lhs.type_infer($ctx)?.compile($ctx)?;
         format!("({}.{} {})", ret, $oper, $lhs.compile($ctx)?)
     }};
+}
+
+#[macro_export]
+macro_rules! offset_calc {
+    ($dict: expr, $offset: expr) => {
+        Expr::Operator(Box::new(Op::Add(
+            Expr::Operator(Box::new(Op::Transmute(*$dict.clone(), Type::Integer))),
+            Expr::Literal(Value::Integer($offset.clone())),
+        )))
+    };
 }
 
 #[macro_export]
@@ -169,30 +193,6 @@ macro_rules! import_args {
             args_typ.push((arg_name, arg_typ));
         }
         (name, args_typ, ret_typ)
-    }};
-}
-
-#[macro_export]
-macro_rules! offset_calc {
-    ($dict: expr, $offset: expr) => {
-        Expr::Operator(Box::new(Op::Add(
-            Expr::Operator(Box::new(Op::Transmute(*$dict.clone(), Type::Integer))),
-            Expr::Literal(Value::Integer($offset.clone())),
-        )))
-    };
-}
-
-#[macro_export]
-macro_rules! compile_arithmetic {
-    ($oper: expr, $self: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
-        type_check!($lhs, $rhs, $ctx)?;
-        format!(
-            "({}.{} {} {})",
-            $lhs.type_infer($ctx)?.compile($ctx)?,
-            $oper,
-            $lhs.compile($ctx)?,
-            $rhs.compile($ctx)?
-        )
     }};
 }
 
