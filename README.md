@@ -158,6 +158,13 @@ macro inc(n) = {
 inc(5): num + inc(3.14)
 ```
 
+### 演算子のオーバーロード
+```lumo
+load repeat(text: str, count: int): str;
+overload repeat = str * int;
+"Hey " * 10
+```
+
 ### モジュールシステム
 ```lumo
 ~~ 外部関数のインポート ~~
