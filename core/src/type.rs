@@ -39,7 +39,7 @@ impl Node for Type {
                             return None;
                         };
                         let typ = Type::parse(value)?;
-                        result.insert(name, (offset, typ.clone()));
+                        result.insert(name, (offset, typ));
                         offset += BYTES;
                     }
                     Some(Type::Dict(result))
