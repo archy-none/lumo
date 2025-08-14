@@ -1,0 +1,6 @@
+macro inc(n) = {
+    try n + 1;
+    catch n + 1.0
+};
+
+inc(1): num + inc(1.2)
