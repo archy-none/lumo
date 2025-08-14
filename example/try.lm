@@ -1,5 +1,5 @@
 macro inc(n) = {
-    try n + 1;
+    try n + 1
     catch n + 1.0
 };
 
