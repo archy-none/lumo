@@ -132,15 +132,8 @@ while i < 10 loop {
 }
 ```
 
-### データ型
+### オブジェクト
 ```lumo
-~~ 基本型 ~~
-let number = 42: int;
-let decimal = 3.14: num;
-let text = "Hello": str;
-let flag = true: bool;
-
-~~ コレクション ~~
 let numbers = [1, 2, 3, 4, 5];
 let person = @{ name: "Alice", age: 12 };
 
