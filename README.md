@@ -90,11 +90,7 @@ node repl.mjs
     <script type="module">
         import { lumo } from './docs/runtime/web.mjs';
 
-        const code = `
-            load alert(_: str): void;
-            alert("Hello, WebAssembly!")
-        `;
-
+        const code = `1 + 2`;
         lumo(code);
     </script>
 </head>
