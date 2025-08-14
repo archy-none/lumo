@@ -88,7 +88,7 @@ node repl.mjs
 <html>
 <head>
     <script type="module">
-        import { lumo } from './docs/runtime/web.mjs';
+        import { lumo } from 'https://archy-none.github.io/lumo/runtime/web.mjs';
 
         const code = `
             load alert(message: str): void;
