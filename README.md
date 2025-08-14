@@ -110,7 +110,7 @@ let x = 5;
 ~~ 関数定義 ~~
 let fact(n: int): int = {
     if n == 0
-        then 1
+        then 1 ~~ 再帰 ~~
         else n * fact(n - 1)
 };
 
