@@ -94,7 +94,6 @@ node repl.mjs
             load alert(message: str): void;
             alert("Hello, WebAssembly from Lumo!")
         `;
-
         lumo(code);
     </script>
 </head>
