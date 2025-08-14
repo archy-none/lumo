@@ -170,7 +170,7 @@ inc(5): num + inc(3.14)
 ~~ JavaScript関数の読み込み ~~
 load repeat(text: str, count: int): str;
 
-~~ 関数を演算子として設定 ~~
+~~ 関数を特定の型の演算に適用 ~~
 overload repeat = str * int;
 "Hey " * 10
 ```
