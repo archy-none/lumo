@@ -1,4 +1,4 @@
-load print(_: str): void;
+load print(msg: str): void;
 
 macro times(n, block) = {
     let i = 0;
