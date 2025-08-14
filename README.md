@@ -121,14 +121,14 @@ fact(x) == x.fact()
 
 ### 制御フロー
 ```lumo
-~~ JavaScript外部関数 ~~
-load to_str(n: num): str;
-
-let i = 0;
 ~~ 繰り返し ~~
 while i < 10 loop {
-    if i % 2 == 0 ~~ 条件分岐 ~~
-        then print(f"{i} is an even number");
+    ~~ 条件分岐 ~~
+    if i % 2 == 0 then {
+        ~~ フォーマット文字列 ~~
+        let message = f"{i} is an even number";
+        print(message)
+    };
     let i + 1
 }
 ```
@@ -143,7 +143,11 @@ let flag = true: bool;
 
 ~~ コレクション ~~
 let numbers = [1, 2, 3, 4, 5];
-let person = @{ name: "Alice", age: 30 };
+let person = @{ name: "Alice", age: 12 };
+
+~~ 内部値の操作 ~~
+let numbers[-1] * 10;
+let person.name = "Bob";
 
 ~~ 列挙型 ~~
 type Status = ( Success | Error | Pending );
@@ -164,7 +168,10 @@ inc(5): num + inc(3.14)
 
 ### 演算子のオーバーロード
 ```lumo
+~~ JavaScript関数の読み込み ~~
 load repeat(text: str, count: int): str;
+
+~~ 関数を演算子として設定 ~~
 overload repeat = str * int;
 "Hey " * 10
 ```
