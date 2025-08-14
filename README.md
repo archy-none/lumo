@@ -106,26 +106,29 @@ node repl.mjs
 ### 変数と関数
 ```lumo
 ~~ 変数宣言 ~~
-let message = "Hello, world!";
-pub let x = 42; ~~ グローバル変数 ~~
+let x = 5;
 
 ~~ 関数定義 ~~
-let add(a: int, b: int) = a + b;
+let fact(n: int): int = {
+    if n == 0
+        then 1
+        else n * fact(n - 1)
+};
+
+~~ 関数呼び出し ~~
+fact(x) == x.fact()
 ```
 
 ### 制御フロー
 ```lumo
-~~ 条件式 ~~
-let result = {
-    if x > 0 then "positive"
-    else if x == 0 then "zero"
-    else "negative"
-};
+~~ JavaScript外部関数 ~~
+load to_str(n: num): str;
 
-~~ ループ ~~
 let i = 0;
+~~ 繰り返し ~~
 while i < 10 loop {
-    print(i: str);
+    if i % 2 == 0 ~~ 条件分岐 ~~
+        then print(f"{i} is an even number");
     let i + 1
 }
 ```
@@ -142,8 +145,9 @@ let flag = true: bool;
 let numbers = [1, 2, 3, 4, 5];
 let person = @{ name: "Alice", age: 30 };
 
-~~ カスタム型 ~~
+~~ 列挙型 ~~
 type Status = ( Success | Error | Pending );
+let current = Status#Pending
 ```
 
 ### マクロ
@@ -163,18 +167,6 @@ inc(5): num + inc(3.14)
 load repeat(text: str, count: int): str;
 overload repeat = str * int;
 "Hey " * 10
-```
-
-### モジュールシステム
-```lumo
-~~ 外部関数のインポート ~~
-load print(_: str): void;
-load to_str(n: num): str;
-
-~~ パブリック関数 ~~
-pub let main() = {
-    print("Hello from Lumo!")
-};
 ```
 
 ## サンプルコード
