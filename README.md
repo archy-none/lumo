@@ -298,7 +298,6 @@ cargo doc --open
 
 ## リンク
 
-- [ドキュメント](docs/index.html)
 - [サンプル](example/)
 - [DeepWiki](https://deepwiki.com/archy-none/lumo)
 
