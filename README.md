@@ -293,7 +293,8 @@ cargo doc --open
 
 ## リンク
 
-- [サンプル](example/)
+- [サンプルコード集](example/)
+- [オンライン実行環境](archy-none.github.io/lumo/)
 - [DeepWiki](https://deepwiki.com/archy-none/lumo)
 
 ---
