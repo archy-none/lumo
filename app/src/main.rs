@@ -44,19 +44,18 @@ fn main() {
         println!("Functions:");
         compiler.export_type.extend(compiler.function_type.clone());
         for (name, func) in &compiler.export_type {
-            println!(" - {}:", name.replace("__", "@"));
-            println!("     Locals:");
-            for (name, typ) in &func.variables {
-                let typ = typ.compress_alias(&compiler).format();
-                println!("      - {name}: {typ}");
-            }
-            println!("     Arguments:");
-            for (name, typ) in &func.arguments {
-                let typ = typ.compress_alias(&compiler).format();
-                println!("      - {name}: {typ}");
-            }
-            let ret = func.returns.compress_alias(&compiler).format();
-            println!("     Returns: {ret}",);
+            println!(
+                " - {name}({}): {}",
+                func.arguments
+                    .iter()
+                    .map(|(name, arg)| {
+                        let typ = arg.compress_alias(&compiler).format();
+                        format!("{name}: {typ}")
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                func.returns.compress_alias(&compiler).format()
+            );
         }
         println!("Variables:");
         for (name, typ) in &compiler.variable_type {
@@ -69,6 +68,10 @@ fn main() {
         println!("Aliases:");
         for (name, typ) in &compiler.type_alias {
             println!(" - {name}: {}", typ.format());
+        }
+        println!("Macros:");
+        for (name, (args, _)) in &compiler.macro_code {
+            println!(" - {name}({})", args.join(", "));
         }
         let returns = compiler.program_return.compress_alias(&compiler).format();
         println!("Returns: {returns}");
