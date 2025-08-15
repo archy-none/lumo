@@ -119,17 +119,15 @@ while i <= 100 loop {
 
 ### リンクリスト
 ```lumo
-type LinkList = @{ value: int, next: LinkList };
+type LinkList = @{ value: int, relate: LinkList };
 
-let car(self: LinkList) = self.value;
-let cdr(self: LinkList) = self.next;
-let node(value: int) = memcpy(@{ value: value, next: LinkList! });
-let append(self: LinkList, other: LinkList) = {
+pub let node(value: int) = memcpy(@{ value: value, relate: LinkList! });
+pub let append(self: LinkList, other: LinkList) = {
     let current = self;
-    while current.next? loop {
-        let current = current.next
+    while current.relate? loop {
+        let current = current.relate
     };
-    let current.next = other;
+    let current.relate = other;
     self
 };
 
