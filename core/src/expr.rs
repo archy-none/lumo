@@ -27,11 +27,15 @@ impl Node for Expr {
         } else if token.starts_with("f\"") && token.ends_with('"') {
             let str = str_format(token.get(2..token.len() - 1)?)?;
             let mut result: Option<Expr> = None;
-            let concat = |result: Option<Expr>, expr: Expr| {
-                let (block, expr) = (result.clone()?, expr.clone());
-                let concat = Some(Expr::Operator(Box::new(Op::Add(block, expr.clone()))));
-                result.clone().and(concat).or(Some(expr))
-            };
+            macro_rules! concat {
+                ($expr: expr) => {
+                    Some(if let Some(result) = result {
+                        Expr::Operator(Box::new(Op::Add(result, $expr.clone())))
+                    } else {
+                        $expr
+                    })
+                };
+            }
             for elm in str {
                 result = if elm.starts_with("{") && elm.ends_with("}") {
                     let elm = elm.get(1..elm.len() - 1)?.trim();
@@ -39,10 +43,9 @@ impl Node for Expr {
                         Expr::Block(Block::parse(elm)?),
                         Type::String,
                     )));
-                    concat(result, block)
+                    concat!(block)
                 } else {
-                    let str = Expr::Literal(Value::String(elm));
-                    concat(result, str)
+                    concat!(Expr::Literal(Value::String(elm)))
                 }
             }
             result.clone()
