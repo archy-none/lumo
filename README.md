@@ -215,77 +215,16 @@ b.append(a)
 
 ## アーキテクチャ
 
-### プロジェクト構造
-```
-.
-├── Cargo.lock
-├── Cargo.toml
-├── LICENSE
-├── README.md
-├── app
-│   ├── Cargo.toml
-│   └── src
-│       └── main.rs
-├── build_wasm.sh
-├── core
-│   ├── Cargo.toml
-│   └── src
-│       ├── block.rs
-│       ├── expr.rs
-│       ├── lexer.rs
-│       ├── lib.rs
-│       ├── op.rs
-│       ├── stmt.rs
-│       ├── type.rs
-│       ├── utils.rs
-│       └── value.rs
-├── docs
-│   ├── index.html
-│   ├── main.js
-│   ├── runtime
-│   │   ├── ffi.mjs
-│   │   ├── lib
-│   │   │   ├── datetime.mjs
-│   │   │   ├── math.mjs
-│   │   │   ├── os.mjs
-│   │   │   ├── random.mjs
-│   │   │   ├── std.mjs
-│   │   │   └── time.mjs
-│   │   ├── module.mjs
-│   │   ├── node.mjs
-│   │   └── web.mjs
-│   ├── style.css
-│   └── wasm
-├── example
-│   ├── alert.lm
-│   ├── app.lm
-│   ├── calc.lm
-│   ├── draw.lm
-│   ├── enum.lm
-│   ├── fizzbuzz.lm
-│   ├── list.lm
-│   ├── quiz.lm
-│   ├── script.lm
-│   └── table.lm
-├── repl.mjs
-├── run.mjs
-└── wasm
-    ├── Cargo.toml
-    ├── pkg
-    └── src
-        └── lib.rs
-```
-
 ### コンパイルパイプライン
-1. **字句解析**: ソースコードがトークンストリームにトークン化されます
+1. **字句解析**: ソースコードがトークン列に分割されます
 2. **構文解析**: トークンが抽象構文木（AST）に解析されます
-3. **型チェック**: 型推論による静的型解析
-4. **コード生成**: ASTがWebAssembly Text format（WAT）にコンパイルされます
+3. **型チェック**: 型推論による静的型解析が行われ、またマクロが展開されます
+4. **コード生成**: 抽象構文木がWebAssembly Text format（WAT）にコンパイルされます
 5. **WebAssembly**: WATがバイナリWebAssembly形式にコンパイルされます
 
 ### ランタイム環境
 - **Node.jsランタイム**: ファイルシステムアクセス付きのフル機能ランタイム
-- **Webランタイム**: DOM統合付きのブラウザ互換ランタイム
+- **Webランタイム**: WebAPIを抽象化した仮想DOM付きのブラウザ互換ランタイム
 - **標準ライブラリ**: math、OS、random、datetime、time操作のための組み込みモジュール
 
 ## 開発
