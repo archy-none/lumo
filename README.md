@@ -199,6 +199,22 @@ let b = node(2).append(node(3));
 b.append(a)
 ```
 
+型推論サマリーの出力 (`lumo example/list.lm --summary`)
+```
+# Type Inference Summary
+Functions:
+ - node(value: int): LinkList
+ - append(self: LinkList, other: LinkList): LinkList
+Variables:
+ - a: LinkList
+ - b: LinkList
+Globals:
+Aliases:
+ - LinkList: @{ value: int, relate: LinkList }
+Macros:
+Returns: LinkList
+```
+
 その他のサンプルは `example/` ディレクトリにあります。
 
 ## アーキテクチャ
