@@ -134,8 +134,8 @@ while i < 10 loop {
 
 ### オブジェクト
 ```lumo
-let numbers = [1, 2, 3, 4, 5];
-let person = @{ name: "Alice", age: 12 };
+let numbers = [1, 2, 3, 4, 5]; ~~ 配列 ~~
+let person = @{ name: "Alice", age: 12 }; ~~ 構造体 ~~
 
 ~~ 内部値の操作 ~~
 let numbers[-1] * 10;
