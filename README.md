@@ -217,28 +217,63 @@ b.append(a)
 
 ### プロジェクト構造
 ```
-lumo/
-├── core/           # 核となる言語実装
-│   ├── src/
-│   │   ├── lexer.rs    # トークン化
-│   │   ├── expr.rs     # 式の解析
-│   │   ├── stmt.rs     # 文の解析
-│   │   ├── type.rs     # 型システム
-│   │   └── value.rs    # 値の型
-│   └── Cargo.toml
-├── app/            # コマンドラインインターフェース
-│   ├── src/
-│   │   └── main.rs
-│   └── Cargo.toml
-├── wasm/           # WebAssemblyバインディング
-│   ├── src/
-│   │   └── lib.rs
-│   └── Cargo.toml
-├── docs/           # ドキュメントとランタイム
-│   ├── runtime/    # JavaScriptランタイム
-│   └── wasm/       # 生成されたWASMバインディング
-├── example/        # サンプルプログラム
-└── build_wasm.sh   # ビルドスクリプト
+.
+├── Cargo.lock
+├── Cargo.toml
+├── LICENSE
+├── README.md
+├── app
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+├── build_wasm.sh
+├── core
+│   ├── Cargo.toml
+│   └── src
+│       ├── block.rs
+│       ├── expr.rs
+│       ├── lexer.rs
+│       ├── lib.rs
+│       ├── op.rs
+│       ├── stmt.rs
+│       ├── type.rs
+│       ├── utils.rs
+│       └── value.rs
+├── docs
+│   ├── index.html
+│   ├── main.js
+│   ├── runtime
+│   │   ├── ffi.mjs
+│   │   ├── lib
+│   │   │   ├── datetime.mjs
+│   │   │   ├── math.mjs
+│   │   │   ├── os.mjs
+│   │   │   ├── random.mjs
+│   │   │   ├── std.mjs
+│   │   │   └── time.mjs
+│   │   ├── module.mjs
+│   │   ├── node.mjs
+│   │   └── web.mjs
+│   ├── style.css
+│   └── wasm
+├── example
+│   ├── alert.lm
+│   ├── app.lm
+│   ├── calc.lm
+│   ├── draw.lm
+│   ├── enum.lm
+│   ├── fizzbuzz.lm
+│   ├── list.lm
+│   ├── quiz.lm
+│   ├── script.lm
+│   └── table.lm
+├── repl.mjs
+├── run.mjs
+└── wasm
+    ├── Cargo.toml
+    ├── pkg
+    └── src
+        └── lib.rs
 ```
 
 ### コンパイルパイプライン
