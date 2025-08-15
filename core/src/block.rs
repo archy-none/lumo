@@ -15,10 +15,10 @@ impl Node for Block {
     }
 
     fn compile(&self, ctx: &mut Compiler) -> Option<String> {
-        let mut result = vec![];
-        for (n, line) in self.0.iter().enumerate() {
+        let (mut result, Block(block)) = (vec![], self);
+        for (n, line) in block.iter().enumerate() {
             let mut output = line.compile(ctx)?;
-            if n != self.0.len() - 1 {
+            if n != block.len() - 1 {
                 if !matches!(line.type_infer(ctx)?, Type::Void) {
                     output.push_str("(drop)");
                 }
