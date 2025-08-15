@@ -66,8 +66,10 @@ impl Node for Expr {
             let name = join!(token.get(..token.len() - 1)?);
             let args = token.last()?.get(1..token.last()?.len() - 1)?;
             let args = tokenize(args, &[","], false, true, false)?;
-            let args = args.iter().map(|i| Expr::parse(&i));
-            let args = args.collect::<Option<Vec<_>>>()?;
+            let args = args
+                .iter()
+                .map(|i| Expr::parse(&i))
+                .collect::<Option<Vec<_>>>()?;
             match Expr::parse(&name)? {
                 Expr::Variable(name) if name == "memcpy" => {
                     Some(Expr::Clone(Box::new(args.first()?.clone())))
