@@ -1,11 +1,11 @@
 # Lumo
 WebAssemblyに直接コンパイルする静的型付けプログラミング言語
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TTaichi/lumo)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/archy-none/lumo)
 
 ## 概要
 
-LumoはWebAssembly (WASM)にコンパイルすることに特化して設計された自由なプログラミング言語です。Rustの安全性とパフォーマンスを、OCamlのような関数型プログラミング言語の表現力と組み合わせています。静的型付けと型推論、メモリ安全性、JavaScript環境とのシームレスな統合を特徴としています。
+LumoはWebAssembly(WASM)にコンパイルすることに特化して設計された自由なプログラミング言語です。分かりやすいシンプルな文法で初心者でも扱いやすく、かつマクロや構造体, 演算子のオーバーロードなど近代的な言語機能が備わっています。静的型付けと型推論, メモリ安全性, JavaScript環境とのシームレスな統合を特徴としています。
 
 ## 特徴
 
@@ -15,7 +15,7 @@ LumoはWebAssembly (WASM)にコンパイルすることに特化して設計さ�
 - **メモリ安全**: nullは必ず型付きで、nullチェック演算子`?`でバグを防ぎます
 - **スコープ**: ブロックに入る毎に新しいスコープが生成され、名前汚染を防ぎます
 
-### Rust風構文
+### Rustライクな構文
 - **馴染みやすい構文**: 構文はRustとOCaml, TypeScriptなどに影響を受けています
 - **LET文**: 変数や関数の定義や再代入には一貫して`let`キーワードを使用しています
 - **マクロ**: コンパイル時に型に縛られずスコープをキャプチャしたままコードを共通化できます
@@ -26,44 +26,6 @@ LumoはWebAssembly (WASM)にコンパイルすることに特化して設計さ�
 - **JavaScript相互運用**: FFIによるJavaScriptオブジェクトとのシームレスな変換
 - **Web・Node.js対応**: フロントエンド・バックエンド両環境のランタイムで動作します
 - **仮想DOM**: 仮想DOMサポート付きの組み込みUIフレームワークでWebアプリを簡単に作れます
-
-## インストール
-
-### 前提条件
-- Rust（最新安定版）
-- Node.js（v16以上）
-- wasm-pack
-
-### ソースからのビルド
-```bash
-git clone https://github.com/archy-none/lumo.git
-cargo install --path ./lumo/app
-```
-
-### WebAssemblyバインディングのビルド
-```bash
-# ビルドスクリプトを実行
-./build_wasm.sh
-
-# または手動で:
-cd wasm
-wasm-pack build --target nodejs
-wasm-pack build --target web
-```
-
-## 使用方法
-
-### コマンドラインインターフェース
-```bash
-# Lumoファイルをコンパイル
-lumo example/fizzbuzz.lm
-
-# 型推論サマリーを表示
-lumo example/fizzbuzz.lm --summary
-
-# Node.jsランタイムでコンパイル・実行
-node run.mjs example/fizzbuzz.lm
-```
 
 ### REPLモード
 ```bash
@@ -230,6 +192,41 @@ Returns: LinkList
 - **Node.jsランタイム**: ファイルシステムアクセス付きのフル機能ランタイム
 - **Webランタイム**: WebAPIを抽象化した仮想DOM付きのブラウザ互換ランタイム
 - **標準ライブラリ**: math、OS、random、datetime、time操作のための組み込みモジュール
+
+## インストール
+
+### 前提条件
+- Rust（最新安定版）
+- Node.js（v16以上）
+- wasm-pack
+
+### ソースからのビルド
+```bash
+git clone https://github.com/archy-none/lumo.git
+cargo install --path ./lumo/app
+```
+
+### WebAssemblyバインディングのビルド
+```bash
+# ビルドスクリプトを実行
+./build_wasm.sh
+```
+
+## 使用方法
+
+### コマンドラインインターフェース
+```bash
+# Lumoファイルをコンパイル
+lumo example/fizzbuzz.lm
+
+# 型推論サマリーを表示
+lumo example/fizzbuzz.lm --summary
+
+# Node.jsランタイムでコンパイル・実行
+node run.mjs example/fizzbuzz.lm
+```
+
+
 
 ## 開発
 
