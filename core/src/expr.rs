@@ -26,29 +26,26 @@ impl Node for Expr {
         // Formatted string (f-string)
         } else if token.starts_with("f\"") && token.ends_with('"') {
             let str = str_format(token.get(2..token.len() - 1)?)?;
-            let mut result = None;
+            let mut result: Option<Expr> = None;
+            let concat = |result: Option<Expr>, expr: Expr| {
+                let (block, expr) = (result.clone()?, expr.clone());
+                let concat = Some(Expr::Operator(Box::new(Op::Add(block, expr.clone()))));
+                result.clone().and(concat).or(Some(expr))
+            };
             for elm in str {
-                if elm.starts_with("{") && elm.ends_with("}") {
+                result = if elm.starts_with("{") && elm.ends_with("}") {
                     let elm = elm.get(1..elm.len() - 1)?.trim();
                     let block = Expr::Operator(Box::new(Op::Cast(
                         Expr::Block(Block::parse(elm)?),
                         Type::String,
                     )));
-                    result = Some(if let Some(result) = result {
-                        Expr::Operator(Box::new(Op::Add(result, block)))
-                    } else {
-                        block
-                    });
+                    concat(result, block)
                 } else {
                     let str = Expr::Literal(Value::String(elm));
-                    result = Some(if let Some(result) = result {
-                        Expr::Operator(Box::new(Op::Add(result, str)))
-                    } else {
-                        str
-                    })
+                    concat(result, str)
                 }
             }
-            result
+            result.clone()
         // Prioritize expression `(expr)`
         } else if token.starts_with("(") && token.ends_with(")") {
             let token = token.get(1..token.len() - 1)?.trim();
