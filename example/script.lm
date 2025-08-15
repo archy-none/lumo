@@ -7,7 +7,7 @@ overload repeat = str * int;
 
 let i = 0;
 while i < 100 loop {
-    let path = f"{i}.txt";
+    let path = f"file_{i}.txt";
     let content = "Hello, world!\n" * 100;
     write_file(path, content);
     let i + 1
