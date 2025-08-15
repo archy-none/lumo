@@ -8,7 +8,7 @@ pub const OPERATOR: [&str; 23] = [
 ];
 pub const RESERVED: [&str; 15] = [
     "pub", "let", "type", "if", "then", "else", "while", "loop", "break", "next", "return", "load",
-    "as", "try", "catch",
+    "overload", "try", "catch",
 ];
 
 pub fn expand_local(ctx: &mut Compiler) -> Option<String> {
