@@ -8,7 +8,8 @@ impl Node for Block {
         Some(Block(
             tokenize(source, &[";"], false, false, false)?
                 .iter()
-                .map(|line| Stmt::parse(&line))
+                .map(String::as_str)
+                .map(Stmt::parse)
                 .collect::<Option<Vec<_>>>()?,
         ))
     }
