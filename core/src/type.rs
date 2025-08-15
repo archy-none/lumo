@@ -88,7 +88,7 @@ impl Type {
                 return Some(self.compress_alias(ctx));
             }
         }
-        let result = match self {
+        match self {
             Type::Alias(name) => {
                 let Some(typ) = ctx.type_alias.get(name).cloned() else {
                     let msg = format!("undefined type alias `{name}`");
@@ -111,8 +111,7 @@ impl Type {
                 Some(Type::Dict(a))
             }
             _ => Some(self.clone()),
-        };
-        result
+        }
     }
 
     pub fn compress_alias(&self, ctx: &Compiler) -> Type {
