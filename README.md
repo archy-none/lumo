@@ -27,29 +27,6 @@ LumoはWebAssembly(WASM)にコンパイルすることに特化して設計さ�
 - **Web・Node.js対応**: フロントエンド・バックエンド両環境のランタイムで動作します
 - **仮想DOM**: 仮想DOMサポート付きの組み込みUIフレームワークでWebアプリを簡単に作れます
 
-### REPLモード
-```bash
-node repl.mjs
-```
-
-### Web統合
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <script type="module">
-        import { lumo } from 'https://archy-none.github.io/lumo/runtime/web.mjs';
-
-        const code = `
-            load alert(message: str): void;
-            alert("Hello, WebAssembly from Lumo!")
-        `;
-        lumo(code);
-    </script>
-</head>
-</html>
-```
-
 ## 言語構文
 
 ### 変数と関数
@@ -222,11 +199,32 @@ lumo example/fizzbuzz.lm
 # 型推論サマリーを表示
 lumo example/fizzbuzz.lm --summary
 
-# Node.jsランタイムでコンパイル・実行
+# Node.jsランタイムで即時実行
 node run.mjs example/fizzbuzz.lm
 ```
 
+### REPLモード
+```bash
+node repl.mjs
+```
 
+### Web統合
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="module">
+        import { lumo } from 'https://archy-none.github.io/lumo/runtime/web.mjs';
+
+        const code = `
+            load alert(message: str): void;
+            alert("Hello, WebAssembly from Lumo!")
+        `;
+        lumo(code);
+    </script>
+</head>
+</html>
+```
 
 ## 開発
 
