@@ -48,7 +48,6 @@ impl Node for Expr {
                     })
                 }
             }
-            dbg!(&result);
             result
         // Prioritize expression `(expr)`
         } else if token.starts_with("(") && token.ends_with(")") {
