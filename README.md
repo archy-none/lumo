@@ -134,6 +134,7 @@ while i < 10 loop {
 
 ### オブジェクト
 ```lumo
+~~ 配列と構造体 ~~
 let numbers = [1, 2, 3, 4, 5];
 let person = @{ name: "Alice", age: 12 };
 
