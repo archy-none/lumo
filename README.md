@@ -198,12 +198,10 @@ lumo example/fizzbuzz.lm
 lumo example/fizzbuzz.lm --summary
 
 # Node.jsランタイムで即時実行
-node run.mjs example/fizzbuzz.lm
-```
+node lumo.mjs example/fizzbuzz.lm
 
-### REPLモード
-```bash
-node repl.mjs
+# REPLモード
+node lumo.mjs
 ```
 
 ### Web統合
@@ -233,11 +231,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # wasm-packをインストール
 curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-# クローンとビルド
-git clone <repository-url>
-cd lumo/main
-cargo build
 ```
 
 ### テストの実行
@@ -246,8 +239,8 @@ cargo build
 cargo test
 
 # サンプルのテスト
-node run.mjs example/fizzbuzz.lm
-node run.mjs example/app.lm
+node lumo.mjs example/fizzbuzz.lm
+node lumo.mjs example/app.lm
 ```
 
 ### ドキュメントのビルド
