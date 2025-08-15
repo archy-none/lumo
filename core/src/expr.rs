@@ -70,15 +70,16 @@ impl Node for Expr {
                 .iter()
                 .map(|i| Expr::parse(&i))
                 .collect::<Option<Vec<_>>>()?;
-            match Expr::parse(&name)? {
-                Expr::Variable(name) if name == "memcpy" => {
-                    Some(Expr::Clone(Box::new(args.first()?.clone())))
-                }
-                Expr::Variable(name) => Some(Expr::Call(name, args)),
-                Expr::Field(obj, name) if name == "memcpy" => Some(Expr::Clone(obj)),
-                Expr::Field(obj, name) => Some(Expr::Call(name, [vec![*obj], args].concat())),
-                _ => None,
+            let (name, args) = match Expr::parse(&name)? {
+                Expr::Variable(name) => (name, args),
+                Expr::Field(obj, name) => (name, [vec![*obj], args].concat()),
+                _ => return None,
+            };
+            if name == "memcpy" {
+                let obj = args.first()?.clone();
+                return Some(Expr::Clone(Box::new(obj)));
             }
+            Some(Expr::Call(name, args))
         // Dictionary access `dict.field`
         } else if token.contains(".") {
             let (dict, field) = token.rsplit_once(".")?;
