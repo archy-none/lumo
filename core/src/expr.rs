@@ -60,19 +60,19 @@ impl Node for Expr {
         // Index access `array[index]`
         } else if token.contains("[") && token.ends_with("]") {
             let token = tokenize(token, &["["], false, true, true)?;
-            let array = Expr::parse(&join!(token.get(..token.len() - 1)?))?;
+            let array = Expr::parse(&token.get(..token.len() - 1)?.concat())?;
             let index = token.last()?.get(1..token.last()?.len() - 1)?;
             Some(Expr::Index(Box::new(array), Box::new(Expr::parse(index)?)))
         // Function call `name(args, ...)`
         } else if token.contains("(") && token.ends_with(")") {
             let token = tokenize(token, &["("], false, true, true)?;
-            let name = join!(token.get(..token.len() - 1)?);
             let args = token.last()?.get(1..token.last()?.len() - 1)?;
             let args = tokenize(args, &[","], false, true, false)?;
             let args = args
                 .iter()
                 .map(|i| Expr::parse(&i))
                 .collect::<Option<Vec<_>>>()?;
+            let name = token.get(..token.len() - 1)?.concat();
             let (name, args) = match Expr::parse(&name)? {
                 Expr::Variable(name) => (name, args),
                 Expr::Field(obj, name) => (name, [vec![*obj], args].concat()),
