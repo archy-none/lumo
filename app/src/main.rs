@@ -12,7 +12,7 @@ use std::{
 #[derive(Parser)]
 #[command(
     name = "Lumo",
-    about = "A programming language that will be compiled to WebAssembly "
+    about = "A programming language that will be compiled to WebAssembly"
 )]
 struct Cli {
     /// Source code file path
