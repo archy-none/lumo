@@ -39,11 +39,10 @@ impl Node for Expr {
             for elm in str {
                 result = if elm.starts_with("{") && elm.ends_with("}") {
                     let elm = elm.get(1..elm.len() - 1)?.trim();
-                    let block = Expr::Operator(Box::new(Op::Cast(
+                    concat!(Expr::Operator(Box::new(Op::Cast(
                         Expr::Block(Block::parse(elm)?),
                         Type::String,
-                    )));
-                    concat!(block)
+                    ))))
                 } else {
                     concat!(Expr::Literal(Value::String(elm)))
                 }
