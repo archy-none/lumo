@@ -65,10 +65,13 @@ impl Node for Op {
             Some(match op {
                 "~" => Op::BNot(Expr::parse(token)?),
                 "!" => Op::LNot(Expr::parse(token)?),
-                "-" => Op::Sub(
-                    Expr::Operator(Box::new(Op::Sub(Expr::parse(token)?, Expr::parse(token)?))),
-                    Expr::parse(token)?,
-                ),
+                "-" => {
+                    let token = Expr::parse(token)?;
+                    Op::Sub(
+                        Expr::Operator(Box::new(Op::Sub(token.clone(), token.clone()))),
+                        token,
+                    )
+                }
                 _ => return None,
             })
         };
