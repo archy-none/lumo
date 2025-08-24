@@ -9,12 +9,12 @@ pub enum Stmt {
     If(Expr, Expr, Option<Box<Stmt>>),
     While(Expr, Expr),
     Type(String, Type),
-    Error(Expr),
     Try(Expr, Box<Stmt>),
     Macro(String, Vec<String>, Expr),
     Overload(usize, (Type, Type), String),
     Import(Option<String>, Signature),
     Return(Option<Expr>),
+    Error,
     Break,
     Next,
 }
@@ -115,12 +115,12 @@ impl Node for Stmt {
             } else {
                 Some(Stmt::Import(None, import_args!(after)))
             }
-        } else if let Some(source) = source.strip_prefix("error ") {
-            Some(Stmt::Error(Expr::parse(source)?))
         } else if let Some(source) = source.strip_prefix("return ") {
             Some(Stmt::Return(Some(Expr::parse(source)?)))
         } else if source == "return" {
             Some(Stmt::Return(None))
+        } else if source == "error" {
+            Some(Stmt::Error)
         } else if source == "next" {
             Some(Stmt::Next)
         } else if source == "break" {
@@ -231,7 +231,7 @@ impl Node for Stmt {
                 }
                 _ => return None,
             },
-            Stmt::Error(expr) => format!("(throw $err {})", expr.compile(ctx)?),
+            Stmt::Error => format!("(throw $err)"),
             Stmt::Try(expr, catch) => {
                 if let Some(code) = expr.compile(ctx) {
                     let res = type_check!(expr, catch, ctx)?.format();
