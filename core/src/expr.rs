@@ -140,20 +140,21 @@ impl Node for Expr {
                 }
             }
             Expr::Index(array, index) => {
-                let Type::Array(typ) = array.type_infer(ctx)?.type_infer(ctx)? else {
+                let typ = array.type_infer(ctx)?;
+                let Type::Array(inner_typ) = typ.clone() else {
                     return None;
                 };
                 let addr = Box::new(address_calc!(array, index, typ.clone()));
-                Expr::Peek(addr, *typ).compile(ctx)?
+                Expr::Peek(addr, *inner_typ).compile(ctx)?
             }
             Expr::Field(expr, key) => {
-                let typ = expr.type_infer(ctx)?.type_infer(ctx)?;
-                let Type::Dict(dict) = typ else {
+                let typ = expr.type_infer(ctx)?;
+                let Type::Dict(dict) = typ.clone() else {
                     return None;
                 };
-                let (offset, typ) = dict.get(key)?.clone();
+                let (offset, inner_typ) = dict.get(key)?.clone();
                 let addr = offset_calc!(expr, offset, typ.clone());
-                Expr::Peek(Box::new(addr), typ).compile(ctx)?
+                Expr::Peek(Box::new(addr), inner_typ).compile(ctx)?
             }
             Expr::Block(block) => block.compile(ctx)?,
             Expr::Clone(from) => {
