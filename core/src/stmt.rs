@@ -115,6 +115,8 @@ impl Node for Stmt {
             } else {
                 Some(Stmt::Import(None, import_args!(after)))
             }
+        } else if let Some(source) = source.strip_prefix("error ") {
+            Some(Stmt::Error(Expr::parse(source)?))
         } else if let Some(source) = source.strip_prefix("return ") {
             Some(Stmt::Return(Some(Expr::parse(source)?)))
         } else if source == "return" {
