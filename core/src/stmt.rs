@@ -367,7 +367,6 @@ impl Node for Stmt {
                     .insert(name.to_owned(), (args.clone(), expr.clone()));
                 Type::Void
             }
-            Stmt::Error(expr) => correct!(expr, expr, ctx, Type::Integer)?,
             Stmt::Try(expr, catch) => expr.type_infer(ctx).or(catch.type_infer(ctx))?,
             Stmt::Import(_module, funcs) => {
                 let (fn_name, args, ret_typ) = funcs;
@@ -391,6 +390,7 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Return(_) => Type::Void,
+            Stmt::Error => Type::Void,
         })
     }
 }
