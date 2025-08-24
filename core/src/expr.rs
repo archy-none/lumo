@@ -164,15 +164,24 @@ impl Node for Expr {
                 )
             }
             Expr::Peek(expr, typ) => {
-                format!("({}.load {})", typ.compile(ctx)?, expr.compile(ctx)?)
+                let safeguard = {
+                    let opgen = |x| Expr::Operator(Box::new(x));
+                    let is_null = opgen(Op::LNot(opgen(Op::NullCheck(*expr.clone()))));
+                    Stmt::If(is_null, Expr::Block(Block(vec![Stmt::Error])), None)
+                };
+                let loader = format!("({}.load {})", typ.compile(ctx)?, expr.compile(ctx)?);
+                safeguard.compile(ctx)? + &loader
             }
             Expr::Poke(addr, expr) => {
-                format!(
-                    "({}.store {} {})",
-                    expr.type_infer(ctx)?.compile(ctx)?,
-                    addr.compile(ctx)?,
-                    expr.compile(ctx)?
-                )
+                let safeguard = {
+                    let opgen = |x| Expr::Operator(Box::new(x));
+                    let is_null = opgen(Op::LNot(opgen(Op::NullCheck(*expr.clone()))));
+                    Stmt::If(is_null, Expr::Block(Block(vec![Stmt::Error])), None)
+                };
+                let typ = expr.type_infer(ctx)?.compile(ctx)?;
+                let [addr, expr] = [addr.compile(ctx)?, expr.compile(ctx)?];
+                let loader = format!("({typ}.store {addr} {expr})");
+                safeguard.compile(ctx)? + &loader
             }
         })
     }
