@@ -226,7 +226,7 @@ impl Node for Stmt {
                     };
                     let (offset, typ) = dict.get(key)?.clone();
                     type_check!(typ, value.type_infer(ctx)?, ctx)?;
-                    let addr = Box::new(offset_calc!(expr, offset));
+                    let addr = Box::new(offset_calc!(expr, offset, typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?
                 }
                 _ => return None,
