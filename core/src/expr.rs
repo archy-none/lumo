@@ -141,18 +141,20 @@ impl Node for Expr {
             }
             Expr::Index(array, index) => {
                 let typ = array.type_infer(ctx)?;
-                correct!(typ.clone(), typ.clone(), ctx, Type::Array(_))?;
+                let Type::Array(inner_typ) = typ.clone() else {
+                    return None;
+                };
                 let addr = Box::new(address_calc!(array, index, typ.clone()));
-                Expr::Peek(addr, typ).compile(ctx)?
+                Expr::Peek(addr, *inner_typ).compile(ctx)?
             }
             Expr::Field(expr, key) => {
                 let typ = expr.type_infer(ctx)?;
                 let Type::Dict(dict) = typ.clone() else {
                     return None;
                 };
-                let (offset, _) = dict.get(key)?.clone();
+                let (offset, inner_typ) = dict.get(key)?.clone();
                 let addr = offset_calc!(expr, offset, typ.clone());
-                Expr::Peek(Box::new(addr), typ).compile(ctx)?
+                Expr::Peek(Box::new(addr), inner_typ).compile(ctx)?
             }
             Expr::Block(block) => block.compile(ctx)?,
             Expr::Clone(from) => {
@@ -167,10 +169,10 @@ impl Node for Expr {
                 safeguard!(expr, typ).compile(ctx)? + &loader
             }
             Expr::Poke(addr, expr) => {
-                let typ = expr.type_infer(ctx)?;
-                let [code, expr] = [addr.compile(ctx)?, expr.compile(ctx)?];
-                let loader = format!("({}.store {code} {expr})", typ.compile(ctx)?);
-                safeguard!(addr, typ).compile(ctx)? + &loader
+                let typ = expr.type_infer(ctx)?.compile(ctx)?;
+                let [addr, expr] = [addr.compile(ctx)?, expr.compile(ctx)?];
+                let loader = format!("({typ}.store {addr} {expr})");
+                safeguard!(expr, typ).compile(ctx)? + &loader
             }
         })
     }
