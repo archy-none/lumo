@@ -169,9 +169,9 @@ impl Node for Expr {
                 safeguard!(expr, typ).compile(ctx)? + &loader
             }
             Expr::Poke(addr, expr) => {
-                let typ = expr.type_infer(ctx)?.compile(ctx)?;
-                let [addr, expr] = [addr.compile(ctx)?, expr.compile(ctx)?];
-                let loader = format!("({typ}.store {addr} {expr})");
+                let typ = expr.type_infer(ctx)?;
+                let [addr, code] = [addr.compile(ctx)?, expr.compile(ctx)?];
+                let loader = format!("({}.store {addr} {code})", typ.compile(ctx)?);
                 safeguard!(expr, typ).compile(ctx)? + &loader
             }
         })
