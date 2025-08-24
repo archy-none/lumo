@@ -292,12 +292,16 @@ impl Node for Expr {
 
 impl Expr {
     pub fn object_size(&self, ctx: &mut Compiler) -> Option<Expr> {
-        match self.type_infer(ctx)? {
+        let typ = self.type_infer(ctx)?;
+        match typ {
             Type::Dict(dict) => Some(Expr::Literal(Value::Integer(dict.len() as i32 * BYTES))),
             Type::Array(_) => Some(Expr::Operator(Box::new(Op::Add(
                 Expr::Operator(Box::new(Op::Mul(
                     Expr::Literal(Value::Integer(BYTES)),
-                    Expr::Peek(Box::new(self.clone()), Type::Integer),
+                    Expr::Peek(
+                        Box::new(Expr::Operator(Box::new(Op::Transmute(self.clone(), typ)))),
+                        Type::Integer,
+                    ),
                 ))),
                 Expr::Literal(Value::Integer(BYTES)),
             )))),
