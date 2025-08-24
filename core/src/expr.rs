@@ -145,16 +145,16 @@ impl Node for Expr {
                     return None;
                 };
                 let addr = Box::new(address_calc!(array, index, typ.clone()));
-                Expr::Peek(addr, *inner_typ).compile(ctx)?
+                Expr::Peek(addr, typ).compile(ctx)?
             }
             Expr::Field(expr, key) => {
                 let typ = expr.type_infer(ctx)?;
                 let Type::Dict(dict) = typ.clone() else {
                     return None;
                 };
-                let (offset, inner_typ) = dict.get(key)?.clone();
+                let (offset, _) = dict.get(key)?.clone();
                 let addr = offset_calc!(expr, offset, typ.clone());
-                Expr::Peek(Box::new(addr), inner_typ).compile(ctx)?
+                Expr::Peek(Box::new(addr), typ).compile(ctx)?
             }
             Expr::Block(block) => block.compile(ctx)?,
             Expr::Clone(from) => {
