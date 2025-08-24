@@ -126,10 +126,13 @@ macro_rules! compile_compare {
 
 #[macro_export]
 macro_rules! offset_calc {
-    ($dict: expr, $offset: expr) => {
-        Expr::Operator(Box::new(Op::Add(
-            Expr::Operator(Box::new(Op::Transmute(*$dict.clone(), Type::Integer))),
-            Expr::Literal(Value::Integer($offset.clone())),
+    ($dict: expr, $offset: expr, $typ: expr) => {
+        Expr::Operator(Box::new(Op::Transmute(
+            Expr::Operator(Box::new(Op::Add(
+                Expr::Operator(Box::new(Op::Transmute(*$dict.clone(), Type::Integer))),
+                Expr::Literal(Value::Integer($offset.clone())),
+            ))),
+            $typ,
         )))
     };
 }
@@ -137,18 +140,21 @@ macro_rules! offset_calc {
 #[macro_export]
 macro_rules! address_calc {
     ($array: expr, $index: expr, $typ: expr) => {
-        Expr::Operator(Box::new(Op::Add(
+        Expr::Operator(Box::new(Op::Transmute(
             Expr::Operator(Box::new(Op::Add(
-                Expr::Literal(Value::Integer(BYTES)),
-                Expr::Operator(Box::new(Op::Transmute(*$array.clone(), Type::Integer))),
-            ))),
-            Expr::Operator(Box::new(Op::Mul(
-                Expr::Operator(Box::new(Op::Mod(
-                    *$index.clone(),
-                    Expr::Peek($array.clone(), Type::Integer),
+                Expr::Operator(Box::new(Op::Add(
+                    Expr::Literal(Value::Integer(BYTES)),
+                    Expr::Operator(Box::new(Op::Transmute(*$array.clone(), Type::Integer))),
                 ))),
-                Expr::Literal(Value::Integer(BYTES)),
+                Expr::Operator(Box::new(Op::Mul(
+                    Expr::Operator(Box::new(Op::Mod(
+                        *$index.clone(),
+                        Expr::Peek($array.clone(), Type::Integer),
+                    ))),
+                    Expr::Literal(Value::Integer(BYTES)),
+                ))),
             ))),
+            *$typ.clone(),
         )))
     };
 }
