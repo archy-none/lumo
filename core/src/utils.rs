@@ -209,6 +209,21 @@ macro_rules! import_args {
 }
 
 #[macro_export]
+macro_rules! safeguard {
+    ($expr: expr, $typ: expr) => {{
+        let is_null = Expr::Operator(Box::new(
+            (Op::LNot(Expr::Operator(Box::new(
+                (Op::NullCheck(Expr::Operator(Box::new(Op::Transmute(
+                    *$expr.clone(),
+                    $typ.clone(),
+                ))))),
+            )))),
+        ));
+        Stmt::If(is_null, Expr::Block(Block(vec![Stmt::Error])), None)
+    }};
+}
+
+#[macro_export]
 macro_rules! correct {
     ($lhs: expr, $rhs: expr , $ctx: expr, $pat: pat) => {{
         let ret = type_check!($lhs, $rhs, $ctx)?;
