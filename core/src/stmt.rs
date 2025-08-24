@@ -214,11 +214,11 @@ impl Node for Stmt {
                 }
                 Expr::Index(array, index) => {
                     let typ = array.type_infer(ctx)?;
-                    let Type::Array(typ) = typ.clone() else {
+                    let Type::Array(inner_typ) = typ.clone() else {
                         return None;
                     };
                     type_check!(inner_typ, value.type_infer(ctx)?, ctx)?;
-                    let addr = Box::new(address_calc!(array, index, *typ));
+                    let addr = Box::new(address_calc!(array, index, typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?
                 }
                 Expr::Field(expr, key) => {
