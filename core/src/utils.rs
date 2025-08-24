@@ -149,7 +149,13 @@ macro_rules! address_calc {
                 Expr::Operator(Box::new(Op::Mul(
                     Expr::Operator(Box::new(Op::Mod(
                         *$index.clone(),
-                        Expr::Peek($array.clone(), Type::Integer),
+                        Expr::Peek(
+                            Box::new(Expr::Operator(Box::new(Op::Transmute(
+                                *$array.clone(),
+                                $typ.clone(),
+                            )))),
+                            Type::Integer,
+                        ),
                     ))),
                     Expr::Literal(Value::Integer(BYTES)),
                 ))),
