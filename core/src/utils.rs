@@ -200,7 +200,10 @@ macro_rules! import_args {
 macro_rules! safeguard {
     ($expr: expr, $typ: expr) => {{
         let is_null = Expr::Operator(Box::new(
-            (Op::LNot(Expr::Operator(Box::new(Op::NullCheck(*$expr.clone()))))),
+            (Op::LNot(Expr::Operator(Box::new(Op::NullCheck(
+                *$expr.clone(),
+                true,
+            ))))),
         ));
         Stmt::If(is_null, Expr::Block(Block(vec![Stmt::Error])), None)
     }};
