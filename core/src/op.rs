@@ -276,7 +276,6 @@ impl Node for Op {
                     Some(Type::Bool)
                 } else {
                     let errmsg = format!("can't null-check primitive typed value");
-                    dbg!(expr);
                     ctx.occurred_error = Some(errmsg);
                     return None;
                 }
