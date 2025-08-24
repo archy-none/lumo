@@ -213,19 +213,21 @@ impl Node for Stmt {
                     Stmt::Let(*scope, func, value.clone()).compile(ctx)?
                 }
                 Expr::Index(array, index) => {
-                    let Type::Array(typ) = array.type_infer(ctx)? else {
+                    let typ = array.type_infer(ctx)?;
+                    let Type::Array(typ) = typ.clone() else {
                         return None;
                     };
-                    type_check!(typ, value.type_infer(ctx)?, ctx)?;
-                    let addr = Box::new(address_calc!(array, index, typ));
+                    type_check!(inner_typ, value.type_infer(ctx)?, ctx)?;
+                    let addr = Box::new(address_calc!(array, index, *typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?
                 }
                 Expr::Field(expr, key) => {
-                    let Type::Dict(dict) = expr.type_infer(ctx)? else {
+                    let typ = expr.type_infer(ctx)?;
+                    let Type::Dict(dict) = typ.clone() else {
                         return None;
                     };
-                    let (offset, typ) = dict.get(key)?.clone();
-                    type_check!(typ, value.type_infer(ctx)?, ctx)?;
+                    let (offset, inner_typ) = dict.get(key)?.clone();
+                    type_check!(inner_typ, value.type_infer(ctx)?, ctx)?;
                     let addr = Box::new(offset_calc!(expr, offset, typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?
                 }
