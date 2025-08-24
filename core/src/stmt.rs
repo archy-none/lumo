@@ -9,6 +9,7 @@ pub enum Stmt {
     If(Expr, Expr, Option<Box<Stmt>>),
     While(Expr, Expr),
     Type(String, Type),
+    Error(Expr),
     Try(Expr, Box<Stmt>),
     Macro(String, Vec<String>, Expr),
     Overload(usize, (Type, Type), String),
@@ -228,6 +229,7 @@ impl Node for Stmt {
                 }
                 _ => return None,
             },
+            Stmt::Error(expr) => format!("(throw $err {})", expr.compile(ctx)?),
             Stmt::Try(expr, catch) => expr.compile(ctx).or(catch.compile(ctx))?,
             Stmt::Import(module, funcs) => {
                 let (name, args, ret_typ) = funcs.clone();
@@ -355,6 +357,7 @@ impl Node for Stmt {
                     .insert(name.to_owned(), (args.clone(), expr.clone()));
                 Type::Void
             }
+            Stmt::Error(expr) => correct!(expr, expr, ctx, Type::Integer)?,
             Stmt::Try(expr, catch) => expr.type_infer(ctx).or(catch.type_infer(ctx))?,
             Stmt::Import(_module, funcs) => {
                 let (fn_name, args, ret_typ) = funcs;
