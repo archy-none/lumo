@@ -232,7 +232,15 @@ impl Node for Stmt {
                 _ => return None,
             },
             Stmt::Error(expr) => format!("(throw $err {})", expr.compile(ctx)?),
-            Stmt::Try(expr, catch) => expr.compile(ctx).or(catch.compile(ctx))?,
+            Stmt::Try(expr, catch) => {
+                if let Some(code) = expr.compile(ctx) {
+                    let res = type_check!(expr, catch, ctx)?.format();
+                    let catch = catch.compile(ctx)?;
+                    format!(" (try {res} (do {code}) (catch $err {catch}))")
+                } else {
+                    catch.compile(ctx)?
+                }
+            }
             Stmt::Import(module, funcs) => {
                 let (name, args, ret_typ) = funcs.clone();
                 let mut export = name.clone();
