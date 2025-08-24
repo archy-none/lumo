@@ -143,7 +143,7 @@ impl Node for Expr {
                 let Type::Array(typ) = array.type_infer(ctx)?.type_infer(ctx)? else {
                     return None;
                 };
-                let addr = Box::new(address_calc!(array, index, typ));
+                let addr = Box::new(address_calc!(array, index, typ.clone()));
                 Expr::Peek(addr, *typ).compile(ctx)?
             }
             Expr::Field(expr, key) => {
@@ -152,7 +152,7 @@ impl Node for Expr {
                     return None;
                 };
                 let (offset, typ) = dict.get(key)?.clone();
-                let addr = offset_calc!(expr, offset);
+                let addr = offset_calc!(expr, offset, typ.clone());
                 Expr::Peek(Box::new(addr), typ).compile(ctx)?
             }
             Expr::Block(block) => block.compile(ctx)?,
