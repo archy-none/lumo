@@ -154,7 +154,7 @@ macro_rules! address_calc {
                     Expr::Literal(Value::Integer(BYTES)),
                 ))),
             ))),
-            *$typ.clone(),
+            $typ,
         )))
     };
 }
