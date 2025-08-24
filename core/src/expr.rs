@@ -141,9 +141,7 @@ impl Node for Expr {
             }
             Expr::Index(array, index) => {
                 let typ = array.type_infer(ctx)?;
-                let Type::Array(inner_typ) = typ.clone() else {
-                    return None;
-                };
+                correct!(typ.clone(), typ.clone(), ctx, Type::Array(_))?;
                 let addr = Box::new(address_calc!(array, index, typ.clone()));
                 Expr::Peek(addr, typ).compile(ctx)?
             }
