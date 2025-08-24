@@ -95,7 +95,7 @@ impl Compiler {
         let ast = Block::parse(source)?;
         self.program_return = ast.type_infer(self)?;
         Some(format!(
-            "(module {import} {memory} {memcpy} {strings} {declare} {global} (func (export \"_start\") {ret} {locals} {code}))",
+            "(module {import} {memory} {tag} {memcpy} {strings} {declare} {global} (func (export \"_start\") {ret} {locals} {code}))",
             code = ast.compile(self)?,
             ret = compile_return!(self.program_return.clone(), self),
             import = join!(self.import_code),
@@ -103,6 +103,7 @@ impl Compiler {
             declare = join!(self.declare_code),
             global = expand_global(self)?,
             locals = expand_local(self)?,
+            tag = "(tag $err)",
             memory = "(memory $mem (export \"mem\") 64)",
             memcpy = &format!(
                 "(global $allocator (export \"allocator\") (mut i32) (i32.const {allocator})) {}",
