@@ -235,10 +235,9 @@ impl Node for Stmt {
             },
             Stmt::Error => format!("(throw $err)"),
             Stmt::Try(expr, catch) => {
-                if let Some(code) = expr.compile(ctx) {
+                if let (Some(expr_), Some(catch_)) = (expr.compile(ctx), catch.compile(ctx)) {
                     let res = compile_return!(type_check!(expr, catch, ctx)?, ctx);
-                    let catch = catch.compile(ctx)?;
-                    format!("(try {res} (do {code}) (catch $err {catch}))")
+                    format!("(try {res} (do {expr_}) (catch $err {catch_}))")
                 } else {
                     catch.compile(ctx)?
                 }
