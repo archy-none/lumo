@@ -14,7 +14,6 @@ pub enum Stmt {
     Overload(usize, (Type, Type), String),
     Import(Option<String>, Signature),
     Return(Option<Expr>),
-    Error,
     Break,
     Next,
 }
@@ -233,15 +232,7 @@ impl Node for Stmt {
                 }
                 _ => return None,
             },
-            Stmt::Error => format!("(throw $err)"),
-            Stmt::Try(expr, catch) => {
-                if let (Some(expr_), Some(catch_)) = (expr.compile(ctx), catch.compile(ctx)) {
-                    let res = compile_return!(type_check!(expr, catch, ctx)?, ctx);
-                    format!("(try {res} (do {expr_}) (catch $err {catch_}))")
-                } else {
-                    catch.compile(ctx)?
-                }
-            }
+            Stmt::Try(expr, catch) => expr.compile(ctx).or(catch.compile(ctx))?,
             Stmt::Import(module, funcs) => {
                 let (name, args, ret_typ) = funcs.clone();
                 let mut export = name.clone();
