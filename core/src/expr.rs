@@ -165,14 +165,12 @@ impl Node for Expr {
                 )
             }
             Expr::Peek(expr, typ) => {
-                let loader = format!("({}.load {})", typ.compile(ctx)?, expr.compile(ctx)?);
-                safeguard!(expr, typ).compile(ctx)? + &loader
+                format!("({}.load {})", typ.compile(ctx)?, expr.compile(ctx)?)
             }
             Expr::Poke(addr, expr) => {
                 let typ = expr.type_infer(ctx)?;
                 let [addr, code] = [addr.compile(ctx)?, expr.compile(ctx)?];
-                let loader = format!("({}.store {addr} {code})", typ.compile(ctx)?);
-                safeguard!(expr, typ).compile(ctx)? + &loader
+                format!("({}.store {addr} {code})", typ.compile(ctx)?)
             }
         })
     }
