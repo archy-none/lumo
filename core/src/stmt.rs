@@ -379,6 +379,10 @@ impl Node for Stmt {
                 ctx.overload.insert(key, name.clone());
                 Type::Void
             }
+            Stmt::Return(Some(value)) => {
+                value.type_infer(ctx)?;
+                Type::Void
+            }
             Stmt::Return(_) => Type::Void,
         })
     }
