@@ -149,12 +149,13 @@ a.append(b).append(b.clone())
 Functions:
  - node(value: int): LinkList
  - append(self: LinkList, other: LinkList): LinkList
+ - clone(self: LinkList): LinkList
 Variables:
  - a: LinkList
  - b: LinkList
 Globals:
 Aliases:
- - LinkList: @{ value: int, relate: LinkList }
+ - LinkList: @{ car: int, cdr: LinkList }
 Macros:
 Returns: LinkList
 ```
