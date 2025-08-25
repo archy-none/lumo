@@ -23,7 +23,7 @@ pub enum Op {
     LOr(Expr, Expr),
     LNot(Expr),
     Cast(Expr, Type),
-    NullCheck(Expr, bool),
+    NullCheck(Expr),
     Nullable(Type),
     Transmute(Expr, Type),
 }
@@ -79,7 +79,7 @@ impl Node for Op {
             let op = tokens.last()?.trim();
             let token = &join!(tokens.get(..tokens.len() - 1)?);
             Some(match op {
-                "?" => Op::NullCheck(Expr::parse(token)?, false),
+                "?" => Op::NullCheck(Expr::parse(token)?),
                 "!" => Op::Nullable(Type::parse(token)?),
                 _ => return None,
             })
@@ -185,7 +185,7 @@ impl Node for Op {
                 }
             }
             Op::Transmute(lhs, _) => lhs.compile(ctx)?,
-            Op::NullCheck(expr, _) => Op::Neq(
+            Op::NullCheck(expr) => Op::Neq(
                 Expr::Operator(Box::new(Op::Transmute(expr.clone(), Type::Integer))),
                 Expr::Literal(Value::Integer(-1)),
             )
@@ -271,8 +271,8 @@ impl Node for Op {
                 lhs.type_infer(ctx)?;
                 rhs.type_infer(ctx)
             }
-            Op::NullCheck(expr, is_backend) => {
-                if is_ptr!(expr.type_infer(ctx)?, ctx) || *is_backend {
+            Op::NullCheck(expr) => {
+                if is_ptr!(expr.type_infer(ctx)?, ctx) {
                     Some(Type::Bool)
                 } else {
                     let errmsg = format!("can't null-check primitive typed value");
