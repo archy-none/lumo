@@ -1,15 +1,22 @@
-type LinkList = @{ value: int, relate: LinkList };
+type LinkList = @{ car: int, cdr: LinkList };
 
-pub let node(value: int) = memcpy(@{ value: value, relate: LinkList! });
-pub let append(self: LinkList, other: LinkList) = {
+let node(value: int) = memcpy(@{ car: value, cdr: LinkList! });
+let append(self: LinkList, other: LinkList) = {
     let current = self;
-    while current.relate? loop {
-        let current = current.relate
+    while current.cdr? loop {
+        let current = current.cdr
     };
-    let current.relate = other;
+    let current.cdr = other;
     self
+};
+let clone(self: LinkList) = {
+    let object = self.memcpy();
+    if object.cdr? then {
+        let object.cdr = clone(self.cdr)
+    };
+    object
 };
 
 let a = node(1);
 let b = node(2).append(node(3));
-b.append(a)
+a.append(b).append(b.clone())
