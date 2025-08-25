@@ -118,8 +118,6 @@ impl Node for Stmt {
             Some(Stmt::Return(Some(Expr::parse(source)?)))
         } else if source == "return" {
             Some(Stmt::Return(None))
-        } else if source == "error" {
-            Some(Stmt::Error)
         } else if source == "next" {
             Some(Stmt::Next)
         } else if source == "break" {
@@ -382,7 +380,6 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Return(_) => Type::Void,
-            Stmt::Error => Type::Void,
         })
     }
 }
