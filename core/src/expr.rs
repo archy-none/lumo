@@ -78,8 +78,8 @@ impl Node for Expr {
                 _ => return None,
             };
             if name == "memcpy" {
-                let obj = args.first()?.clone();
-                return Some(Expr::Clone(Box::new(obj)));
+                let [obj] = args.as_slice() else { return None };
+                return Some(Expr::Clone(Box::new(obj.clone())));
             }
             Some(Expr::Call(name, args))
         // Dictionary access `dict.field`
