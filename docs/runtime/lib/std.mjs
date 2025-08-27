@@ -145,6 +145,17 @@ export class LumoWebLib extends LumoStdLib {
             parent.appendChild(elm);
             return lumoDomIndex - 1;
         };
+        this.functions.prp_elm = (id, property) => {
+            property = read(this.instance, "str", property);
+            let elm = document.getElementById(getMystiaDom(id));
+            if (elm === null) elm = document.querySelector(id);
+            console.log(elm, property, elm[property]);
+            if (property == "style") {
+                return write(this.instance, "str", elm.style.cssText);
+            } else {
+                return write(this.instance, "str", elm[property]);
+            }
+        };
         this.functions.upd_elm = (id, property, content) => {
             property = read(this.instance, "str", property);
             content = read(this.instance, "str", content);
