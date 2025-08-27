@@ -215,6 +215,28 @@ macro_rules! correct {
 }
 
 #[macro_export]
+macro_rules! overload {
+    ($self: expr, $ctx: expr, $method: ident) => {{
+        let mut overload = || {
+            let terms = $self.binop_term()?;
+            let terms_typ = (
+                terms.0.type_infer($ctx)?.format(),
+                terms.1.type_infer($ctx)?.format(),
+            );
+            let key = ($self.overload_id()?, terms_typ);
+            if let Some(func) = $ctx.overload.get(&key) {
+                return Expr::Call(func.to_string(), vec![terms.0, terms.1]).$method($ctx);
+            } else {
+                None
+            }
+        };
+        if let Some(overloaded) = overload() {
+            return Some(overloaded);
+        }
+    }};
+}
+
+#[macro_export]
 macro_rules! ok {
     ($result:expr) => {
         if let Ok(val) = $result {
