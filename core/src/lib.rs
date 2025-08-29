@@ -58,17 +58,17 @@ pub struct Compiler {
     /// Errors that occurred during compilation
     pub error: Option<String>,
     /// Type environment for variable
-    pub variable_type: IndexMap<String, Type>,
+    pub variable: IndexMap<String, Type>,
     /// Type environment for global varibale
-    pub global_type: IndexMap<String, Type>,
+    pub global: IndexMap<String, Type>,
     /// Type environment for argument
-    pub argument_type: IndexMap<String, Type>,
+    pub argument: IndexMap<String, Type>,
     /// Type environment for function
-    pub function_type: IndexMap<String, Function>,
+    pub function: IndexMap<String, Function>,
     /// Type environment for exported function
-    pub export_type: IndexMap<String, Function>,
+    pub export: IndexMap<String, Function>,
     /// Type of main program returns
-    pub program_return: Type,
+    pub result: Type,
 }
 
 impl Compiler {
@@ -82,22 +82,22 @@ impl Compiler {
             r#macro: IndexMap::new(),
             overload: IndexMap::new(),
             type_alias: IndexMap::new(),
-            variable_type: IndexMap::new(),
-            global_type: IndexMap::new(),
-            argument_type: IndexMap::new(),
-            function_type: IndexMap::new(),
-            export_type: IndexMap::new(),
-            program_return: Type::Void,
+            variable: IndexMap::new(),
+            global: IndexMap::new(),
+            argument: IndexMap::new(),
+            function: IndexMap::new(),
+            export: IndexMap::new(),
+            result: Type::Void,
         }
     }
 
     pub fn build(&mut self, source: &str) -> Option<String> {
         let ast = Block::parse(source)?;
-        self.program_return = ast.type_infer(self)?;
+        self.result = ast.type_infer(self)?;
         Some(format!(
             "(module {import} {memory} {tag} {memcpy} {strings} {declare} {global} (func (export \"_start\") {ret} {locals} {code}))",
             code = ast.compile(self)?,
-            ret = compile_return!(self.program_return.clone(), self),
+            ret = compile_return!(self.result.clone(), self),
             import = join!(self.import),
             strings = join!(self.data),
             declare = join!(self.declare),
