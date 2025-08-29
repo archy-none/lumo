@@ -13,7 +13,7 @@ pub const RESERVED: [&str; 15] = [
 
 pub fn expand_local(ctx: &mut Compiler) -> Option<String> {
     Some(join!(
-        ctx.variable_type
+        ctx.variable
             .clone()
             .iter()
             .map(|(name, typ)| Some(format!("(local ${name} {})", typ.compile(ctx)?)))
@@ -23,7 +23,7 @@ pub fn expand_local(ctx: &mut Compiler) -> Option<String> {
 
 pub fn expand_global(ctx: &mut Compiler) -> Option<String> {
     Some(join!(
-        ctx.global_type
+        ctx.global
             .clone()
             .iter()
             .map(|(name, typ)| {
@@ -82,7 +82,7 @@ macro_rules! type_check {
         if lhs == rhs {
             Some(lhs.clone())
         } else {
-            $ctx.occurred_error = Some(format!(
+            $ctx.error = Some(format!(
                 "type mismatch between {} and {}",
                 lhs.format(),
                 rhs.format()
@@ -159,18 +159,18 @@ macro_rules! compile_args {
         for arg in $args {
             let Expr::Operator(oper) = arg else {
                 let msg = "function argument definition needs type annotation";
-                $ctx.occurred_error = Some(msg.to_string());
+                $ctx.error = Some(msg.to_string());
                 return None;
             };
             let Op::Cast(Expr::Variable(name), typ) = *oper.clone() else {
                 let msg = "function argument name should be identifier";
-                $ctx.occurred_error = Some(msg.to_string());
+                $ctx.error = Some(msg.to_string());
                 return None;
             };
             if let Some(typ) = typ.type_infer($ctx) {
-                $ctx.argument_type.insert(name.to_string(), typ);
+                $ctx.argument.insert(name.to_string(), typ);
             } else {
-                $ctx.argument_type.insert(name.to_string(), typ);
+                $ctx.argument.insert(name.to_string(), typ);
             }
         }
     };
@@ -208,7 +208,7 @@ macro_rules! correct {
                 $lhs.type_infer($ctx)?.format(),
                 $rhs.type_infer($ctx)?.format()
             );
-            $ctx.occurred_error = Some(msg);
+            $ctx.error = Some(msg);
             None
         }
     }};
