@@ -92,7 +92,7 @@ impl Type {
             Type::Alias(name) => {
                 let Some(typ) = ctx.type_alias.get(name).cloned() else {
                     let msg = format!("undefined type alias `{name}`");
-                    ctx.occurred_error = Some(msg);
+                    ctx.error = Some(msg);
                     return None;
                 };
                 typ.solve_alias(ctx, xpct.clone())
