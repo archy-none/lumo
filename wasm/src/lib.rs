@@ -27,7 +27,7 @@ pub fn lumo(source: &str) -> Result<Lumo, String> {
         let bytes = wat::parse_str(wat_code.clone()).unwrap();
         Ok(Lumo {
             bytecode: bytes,
-            return_type: type_to_json(&compiler.program_return),
+            return_type: type_to_json(&compiler.result),
         })
     } else {
         let error_message = "failed to parse, compile or check type consistency";
