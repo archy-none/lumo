@@ -44,19 +44,19 @@ pub struct Compiler {
     /// Address tracker
     pub allocator: i32,
     /// Code that imports external module
-    pub import_code: Vec<String>,
+    pub import: Vec<String>,
     /// Static string data
-    pub static_data: Vec<String>,
+    pub data: Vec<String>,
     /// Set of function declare code
-    pub declare_code: Vec<String>,
+    pub declare: Vec<String>,
     /// Macro code that's processing in compile time
-    pub macro_code: IndexMap<String, (Vec<String>, Expr)>,
+    pub r#macro: IndexMap<String, (Vec<String>, Expr)>,
     /// Operator overload code that's processing in compile time
     pub overload: IndexMap<(usize, (String, String)), String>,
     /// Type alias that's defined by user
     pub type_alias: IndexMap<String, Type>,
     /// Errors that occurred during compilation
-    pub occurred_error: Option<String>,
+    pub error: Option<String>,
     /// Type environment for variable
     pub variable_type: IndexMap<String, Type>,
     /// Type environment for global varibale
@@ -75,11 +75,11 @@ impl Compiler {
     pub fn new() -> Self {
         Compiler {
             allocator: 0,
-            import_code: vec![],
-            static_data: vec![],
-            declare_code: vec![],
-            occurred_error: None,
-            macro_code: IndexMap::new(),
+            import: vec![],
+            data: vec![],
+            declare: vec![],
+            error: None,
+            r#macro: IndexMap::new(),
             overload: IndexMap::new(),
             type_alias: IndexMap::new(),
             variable_type: IndexMap::new(),
@@ -98,9 +98,9 @@ impl Compiler {
             "(module {import} {memory} {tag} {memcpy} {strings} {declare} {global} (func (export \"_start\") {ret} {locals} {code}))",
             code = ast.compile(self)?,
             ret = compile_return!(self.program_return.clone(), self),
-            import = join!(self.import_code),
-            strings = join!(self.static_data),
-            declare = join!(self.declare_code),
+            import = join!(self.import),
+            strings = join!(self.data),
+            declare = join!(self.declare),
             global = expand_global(self)?,
             locals = expand_local(self)?,
             tag = "(tag $err)",
