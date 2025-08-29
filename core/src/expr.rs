@@ -119,7 +119,7 @@ impl Node for Expr {
                         .map(|x| x.compile(ctx))
                         .collect::<Option<Vec<_>>>()?;
                     format!("(call ${name} {})", join!(args))
-                } else if let Some((params, expr)) = ctx.macro_code.get(name).cloned() {
+                } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     let mut old_types = IndexMap::new();
                     for (param, arg) in params.iter().zip(args) {
                         let typ = arg.type_infer(ctx)?;
@@ -186,7 +186,7 @@ impl Node for Expr {
                 } else if let Some(arg) = ctx.argument_type.get(name) {
                     arg.clone()
                 } else {
-                    ctx.occurred_error = Some(format!("undefined variable `{name}`"));
+                    ctx.error = Some(format!("undefined variable `{name}`"));
                     return None;
                 }
             }
@@ -213,7 +213,7 @@ impl Node for Expr {
                     let ziped = args.iter().zip(function.arguments.values());
                     ziped.map(func).collect::<Option<Vec<_>>>()?;
                     function.returns.type_infer(ctx)?
-                } else if let Some((params, expr)) = ctx.macro_code.get(name).cloned() {
+                } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     arglen_check!(params, "macro");
                     let var_ctx = ctx.variable_type.clone();
                     for (params, arg) in params.iter().zip(args) {
@@ -224,7 +224,7 @@ impl Node for Expr {
                     ctx.variable_type = var_ctx;
                     typ
                 } else {
-                    ctx.occurred_error = Some(format!(
+                    ctx.error = Some(format!(
                         "function or macro `{name}` you want to call is not defined"
                     ));
                     return None;
@@ -234,7 +234,7 @@ impl Node for Expr {
                 let infered = arr.type_infer(ctx)?;
                 let Some(Type::Array(typ)) = infered.type_infer(ctx) else {
                     let error_message = format!("can't index access to {}", infered.format());
-                    ctx.occurred_error = Some(error_message);
+                    ctx.error = Some(error_message);
                     return None;
                 };
                 typ.type_infer(ctx)?
@@ -244,13 +244,13 @@ impl Node for Expr {
                 if let Type::Dict(dict) = infered.clone() {
                     let Some((_offset, typ)) = dict.get(key) else {
                         let error_message = format!("{} haven't field `{key}`", infered.format());
-                        ctx.occurred_error = Some(error_message);
+                        ctx.error = Some(error_message);
                         return None;
                     };
                     typ.type_infer(ctx)?
                 } else {
                     let error_message = format!("can't field access to {}", infered.format());
-                    ctx.occurred_error = Some(error_message);
+                    ctx.error = Some(error_message);
                     return None;
                 }
             }
@@ -261,7 +261,7 @@ impl Node for Expr {
                     typ
                 } else {
                     let errmsg = "can't memory copy primitive typed value";
-                    ctx.occurred_error = Some(errmsg.to_string());
+                    ctx.error = Some(errmsg.to_string());
                     return None;
                 }
             }
