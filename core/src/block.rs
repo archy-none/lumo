@@ -31,7 +31,7 @@ impl Node for Block {
     fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
         let var_ctx = ctx.variable_type.clone();
         let fun_ctx = ctx.function_type.clone();
-        let mcr_ctx = ctx.macro_code.clone();
+        let mcr_ctx = ctx.r#macro.clone();
 
         let Block(block) = self.clone();
         let mut result = Type::Void;
@@ -41,7 +41,7 @@ impl Node for Block {
 
         ctx.variable_type = var_ctx;
         ctx.function_type = fun_ctx;
-        ctx.macro_code = mcr_ctx;
+        ctx.r#macro = mcr_ctx;
         Some(result)
     }
 }
