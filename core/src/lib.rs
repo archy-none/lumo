@@ -7,7 +7,6 @@ mod r#type;
 mod utils;
 mod value;
 
-use crate::utils::expand_global;
 use indexmap::IndexMap;
 use unicode_xid::UnicodeXID;
 
@@ -18,7 +17,7 @@ pub use {
     op::Op,
     stmt::Stmt,
     r#type::{Dict, Enum, Type},
-    utils::{BYTES, OPERATOR, RESERVED, SPACE, expand_local},
+    utils::{BYTES, OPERATOR, RESERVED, SPACE, expand_global, expand_local},
     value::Value,
 };
 
