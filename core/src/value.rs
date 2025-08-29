@@ -60,7 +60,7 @@ impl Node for Value {
                 let result = value(ctx.allocator).compile(ctx)?;
                 let code = format!(r#"(data {result} "{str}\00")"#);
                 ctx.allocator += str.len() as i32 + 1;
-                ctx.static_data.push(code);
+                ctx.data.push(code);
                 result
             }
             Value::Array(array) => {
@@ -134,12 +134,12 @@ impl Node for Value {
                 let typ = typ.type_infer(ctx)?;
                 let Type::Enum(enum_type) = typ.clone() else {
                     let error_message = format!("can't access enumerator to {}", typ.format());
-                    ctx.occurred_error = Some(error_message);
+                    ctx.error = Some(error_message);
                     return None;
                 };
                 let Some(variant) = enum_type.iter().position(|item| item == key) else {
                     let error_message = format!("`{key}` is invalid variant of {}", typ.format());
-                    ctx.occurred_error = Some(error_message);
+                    ctx.error = Some(error_message);
                     return None;
                 };
                 value(variant as i32).compile(ctx)?
@@ -159,7 +159,7 @@ impl Node for Value {
                     let typ = e.type_infer(ctx)?;
                     if typ != origin {
                         let errmsg = "array elements must be of the same type";
-                        ctx.occurred_error = Some(errmsg.to_owned());
+                        ctx.error = Some(errmsg.to_owned());
                         return None;
                     }
                 }
