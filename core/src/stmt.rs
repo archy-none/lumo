@@ -208,7 +208,7 @@ impl Node for Stmt {
                         pub = if let Scope::Global = scope { format!("(export \"{name}\")") } else { String::new() },
                         body = value.compile(ctx)?, locals = expand_local(ctx)?
                     );
-                    ctx.declare_code.push(code);
+                    ctx.declare.push(code);
                     ctx.variable_type = var_ctx;
                     ctx.argument_type = arg_ctx;
                     String::new()
@@ -255,7 +255,7 @@ impl Node for Stmt {
                 };
                 let sig = compile_args_type!(function, ctx);
                 let ret = compile_return!(ret_typ, ctx);
-                ctx.import_code.push(format!(
+                ctx.import.push(format!(
                     "(import \"env\" \"{export}\" (func ${name} {sig} {ret}))"
                 ));
                 String::new()
@@ -299,7 +299,7 @@ impl Node for Stmt {
                                 }
                             } else {
                                 let msg = format!("can't reassign value to argument");
-                                ctx.occurred_error = Some(msg);
+                                ctx.error = Some(msg);
                                 return None;
                             }
                         }
@@ -364,7 +364,7 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Macro(name, args, expr) => {
-                ctx.macro_code
+                ctx.r#macro
                     .insert(name.to_owned(), (args.clone(), expr.clone()));
                 Type::Void
             }
