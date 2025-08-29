@@ -35,7 +35,7 @@ fn main() {
     set_current_dir(Path::new(filename).parent().unwrap()).unwrap();
     let Some(wat_code) = compiler.build(&source) else {
         let error_message = "failed to parse, compile or check type consistency";
-        let err = compiler.occurred_error.unwrap_or(error_message.to_owned());
+        let err = compiler.error.unwrap_or(error_message.to_owned());
         eprintln!("Error: {err}");
         return;
     };
@@ -70,7 +70,7 @@ fn main() {
             println!(" - {name}: {}", typ.format());
         }
         println!("Macros:");
-        for (name, (args, _)) in &compiler.macro_code {
+        for (name, (args, _)) in &compiler.r#macro {
             println!(" - {name}({})", args.join(", "));
         }
         let returns = compiler.program_return.compress_alias(&compiler).format();
