@@ -228,7 +228,7 @@ impl Node for Op {
                     _ => {
                         let [lhs, rhs] = [lhs.format(), rhs.format()];
                         let msg = format!("type {lhs} can't convert to {rhs}");
-                        ctx.occurred_error = Some(msg);
+                        ctx.error = Some(msg);
                         return None;
                     }
                 }
@@ -246,7 +246,7 @@ impl Node for Op {
                     Some(Type::Bool)
                 } else {
                     let errmsg = format!("can't null-check primitive typed value");
-                    ctx.occurred_error = Some(errmsg);
+                    ctx.error = Some(errmsg);
                     return None;
                 }
             }
@@ -255,7 +255,7 @@ impl Node for Op {
                     Some(typ.clone())
                 } else {
                     let errmsg = format!("primitive types are not nullable");
-                    ctx.occurred_error = Some(errmsg);
+                    ctx.error = Some(errmsg);
                     return None;
                 }
             }
