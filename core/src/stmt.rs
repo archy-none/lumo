@@ -52,9 +52,10 @@ impl Node for Stmt {
         } else if let Some(source) = source.strip_prefix("while ") {
             tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
             let r#loop = tokens.iter().position(|i| i == "loop")?;
-            let cond = Expr::parse(&join!(tokens.get(0..r#loop)?))?;
-            let body = Expr::parse(&join!(tokens.get(r#loop + 1..)?))?;
-            Some(Stmt::While(cond, body))
+            Some(Stmt::While(
+                parse!(Expr, 0..r#loop),
+                parse!(Expr, r#loop + 1..),
+            ))
         } else if let Some(source) = source.strip_prefix("try ") {
             tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
             let r#catch = tokens.iter().position(|i| i == "catch")?;
