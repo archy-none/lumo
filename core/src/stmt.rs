@@ -168,30 +168,26 @@ impl Node for Stmt {
                 Expr::Variable(name) => match scope {
                     Scope::Local => {
                         let typ = value.type_infer(ctx)?;
-                        if !ctx.argument_type.contains_key(name) {
-                            ctx.variable_type.insert(name.to_string(), typ);
+                        if !ctx.argument.contains_key(name) {
+                            ctx.variable.insert(name.to_string(), typ);
                         }
                         format!("(local.set ${name} {})", value.compile(ctx)?)
                     }
                     Scope::Global => {
                         let typ = value.type_infer(ctx)?;
-                        if !ctx.global_type.contains_key(name) {
-                            ctx.global_type.insert(name.to_string(), typ);
+                        if !ctx.global.contains_key(name) {
+                            ctx.global.insert(name.to_string(), typ);
                         }
                         format!("(global.set ${name} {})", value.compile(ctx)?)
                     }
                 },
                 Expr::Call(name, _) => {
                     self.type_infer(ctx);
-                    let var_ctx = ctx.variable_type.clone();
-                    let arg_ctx = ctx.argument_type.clone();
-                    let function = ctx
-                        .function_type
-                        .get(name)
-                        .or(ctx.export_type.get(name))?
-                        .clone();
-                    ctx.variable_type = function.variables.clone();
-                    ctx.argument_type = function.arguments.clone();
+                    let var_ctx = ctx.variable.clone();
+                    let arg_ctx = ctx.argument.clone();
+                    let function = ctx.function.get(name).or(ctx.export.get(name))?.clone();
+                    ctx.variable = function.variables.clone();
+                    ctx.argument = function.arguments.clone();
                     let code = format!(
                         "(func ${name} {pub} {args} {ret} {locals} {body})",
                         args = join!(
@@ -209,8 +205,8 @@ impl Node for Stmt {
                         body = value.compile(ctx)?, locals = expand_local(ctx)?
                     );
                     ctx.declare.push(code);
-                    ctx.variable_type = var_ctx;
-                    ctx.argument_type = arg_ctx;
+                    ctx.variable = var_ctx;
+                    ctx.argument = arg_ctx;
                     String::new()
                 }
                 Expr::Operator(oper) => {
@@ -290,12 +286,12 @@ impl Node for Stmt {
                 match name {
                     Expr::Variable(name) => match scope {
                         Scope::Local => {
-                            if !ctx.argument_type.contains_key(name) {
+                            if !ctx.argument.contains_key(name) {
                                 let value_type = value.type_infer(ctx)?;
-                                if let Some(exist_val) = ctx.clone().variable_type.get(name) {
+                                if let Some(exist_val) = ctx.clone().variable.get(name) {
                                     type_check!(exist_val, value_type, ctx)?;
                                 } else {
-                                    ctx.variable_type.insert(name.to_string(), value_type);
+                                    ctx.variable.insert(name.to_string(), value_type);
                                 }
                             } else {
                                 let msg = format!("can't reassign value to argument");
@@ -305,51 +301,51 @@ impl Node for Stmt {
                         }
                         Scope::Global => {
                             let value_type = value.type_infer(ctx)?;
-                            if let Some(exist_val) = ctx.clone().global_type.get(name) {
+                            if let Some(exist_val) = ctx.clone().global.get(name) {
                                 type_check!(exist_val, value_type, ctx)?;
                             } else {
-                                ctx.global_type.insert(name.to_string(), value_type);
+                                ctx.global.insert(name.to_string(), value_type);
                             }
                         }
                     },
                     Expr::Call(name, args) => {
-                        let var_ctx = ctx.variable_type.clone();
-                        let arg_ctx = ctx.argument_type.clone();
-                        ctx.variable_type.clear();
-                        ctx.argument_type.clear();
+                        let var_ctx = ctx.variable.clone();
+                        let arg_ctx = ctx.argument.clone();
+                        ctx.variable.clear();
+                        ctx.argument.clear();
                         compile_args!(args, ctx);
                         let frame = Function {
                             returns: value.type_infer(ctx)?,
-                            variables: ctx.variable_type.clone(),
-                            arguments: ctx.argument_type.clone(),
+                            variables: ctx.variable.clone(),
+                            arguments: ctx.argument.clone(),
                         };
                         if let Scope::Global = scope {
-                            &mut ctx.export_type
+                            &mut ctx.export
                         } else {
-                            &mut ctx.function_type
+                            &mut ctx.function
                         }
                         .insert(name.to_owned(), frame);
-                        ctx.variable_type = var_ctx;
-                        ctx.argument_type = arg_ctx;
+                        ctx.variable = var_ctx;
+                        ctx.argument = arg_ctx;
                     }
                     Expr::Operator(oper) => match *oper.clone() {
                         Op::Cast(Expr::Call(name, args), ret) => {
-                            let var_ctx = ctx.variable_type.clone();
-                            let arg_ctx = ctx.argument_type.clone();
-                            ctx.variable_type.clear();
-                            ctx.argument_type.clear();
+                            let var_ctx = ctx.variable.clone();
+                            let arg_ctx = ctx.argument.clone();
+                            ctx.variable.clear();
+                            ctx.argument.clear();
                             compile_args!(args.clone(), ctx);
-                            ctx.function_type.insert(
+                            ctx.function.insert(
                                 name.to_owned(),
                                 Function {
-                                    variables: ctx.variable_type.clone(),
-                                    arguments: ctx.argument_type.clone(),
+                                    variables: ctx.variable.clone(),
+                                    arguments: ctx.argument.clone(),
                                     returns: ret.clone(),
                                 },
                             );
                             type_check!(value.type_infer(ctx)?, ret, ctx);
-                            ctx.variable_type = var_ctx;
-                            ctx.argument_type = arg_ctx;
+                            ctx.variable = var_ctx;
+                            ctx.argument = arg_ctx;
                         }
                         _ => return None,
                     },
@@ -375,7 +371,7 @@ impl Node for Stmt {
                 for (name, typ) in args.iter() {
                     arg_map.insert(name.to_string(), typ.clone());
                 }
-                ctx.function_type.insert(
+                ctx.function.insert(
                     fn_name.clone(),
                     Function {
                         variables: IndexMap::new(),
