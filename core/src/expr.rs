@@ -107,13 +107,13 @@ impl Node for Expr {
         Some(match self {
             Expr::Operator(oper) => oper.compile(ctx)?,
             Expr::Variable(name) => {
-                let is_global = ctx.global_type.contains_key(name);
+                let is_global = ctx.global.contains_key(name);
                 let scope = if is_global { "global" } else { "local" };
                 format!("({scope}.get ${name})",)
             }
             Expr::Literal(literal) => literal.compile(ctx)?,
             Expr::Call(name, args) => {
-                if ctx.function_type.contains_key(name) || ctx.export_type.contains_key(name) {
+                if ctx.function.contains_key(name) || ctx.export.contains_key(name) {
                     let args = args
                         .iter()
                         .map(|x| x.compile(ctx))
@@ -123,17 +123,17 @@ impl Node for Expr {
                     let mut old_types = IndexMap::new();
                     for (param, arg) in params.iter().zip(args) {
                         let typ = arg.type_infer(ctx)?;
-                        if let Some(original_var) = ctx.variable_type.get(param).cloned() {
+                        if let Some(original_var) = ctx.variable.get(param).cloned() {
                             old_types.insert(param.to_owned(), original_var);
                         }
-                        ctx.variable_type.insert(param.to_owned(), typ);
+                        ctx.variable.insert(param.to_owned(), typ);
                     }
                     let mut body = expr.compile(ctx)?;
                     for (param, arg) in params.iter().zip(args) {
                         let var = Expr::Variable(param.to_owned()).compile(ctx)?;
                         body = body.replace(&var, &arg.compile(ctx)?);
                     }
-                    ctx.variable_type.extend(old_types);
+                    ctx.variable.extend(old_types);
                     body
                 } else {
                     return None;
@@ -179,11 +179,11 @@ impl Node for Expr {
         Some(match self {
             Expr::Operator(oper) => oper.type_infer(ctx)?,
             Expr::Variable(name) => {
-                if let Some(global) = ctx.global_type.get(name) {
+                if let Some(global) = ctx.global.get(name) {
                     global.clone()
-                } else if let Some(local) = ctx.variable_type.get(name) {
+                } else if let Some(local) = ctx.variable.get(name) {
                     local.clone()
-                } else if let Some(arg) = ctx.argument_type.get(name) {
+                } else if let Some(arg) = ctx.argument.get(name) {
                     arg.clone()
                 } else {
                     ctx.error = Some(format!("undefined variable `{name}`"));
@@ -197,17 +197,12 @@ impl Node for Expr {
                         if args.len() != $params.len() {
                             let (typ, paramlen, arglen) = ($typ, $params.len(), args.len());
                             let errmsg = format!("arguments of {typ} `{name}` length should be {paramlen}, but passed {arglen} values");
-                            ctx.occurred_error = Some(errmsg);
+                            ctx.error = Some(errmsg);
                             return None;
                         }
                     };
                 }
-                if let Some(function) = ctx
-                    .function_type
-                    .get(name)
-                    .or(ctx.export_type.get(name))
-                    .cloned()
-                {
+                if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned() {
                     arglen_check!(function.arguments, "function");
                     let func = |(arg, typ): (&Expr, &Type)| type_check!(arg, typ, ctx);
                     let ziped = args.iter().zip(function.arguments.values());
@@ -215,13 +210,13 @@ impl Node for Expr {
                     function.returns.type_infer(ctx)?
                 } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     arglen_check!(params, "macro");
-                    let var_ctx = ctx.variable_type.clone();
+                    let var_ctx = ctx.variable.clone();
                     for (params, arg) in params.iter().zip(args) {
                         let typ = arg.type_infer(ctx)?;
-                        ctx.variable_type.insert(params.to_owned(), typ);
+                        ctx.variable.insert(params.to_owned(), typ);
                     }
                     let typ = expr.type_infer(ctx)?;
-                    ctx.variable_type = var_ctx;
+                    ctx.variable = var_ctx;
                     typ
                 } else {
                     ctx.error = Some(format!(
