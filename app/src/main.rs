@@ -42,8 +42,8 @@ fn main() {
     if cli.summary {
         println!("# Type Inference Summary");
         println!("Functions:");
-        compiler.export_type.extend(compiler.function_type.clone());
-        for (name, func) in &compiler.export_type {
+        compiler.export.extend(compiler.function.clone());
+        for (name, func) in &compiler.export {
             println!(
                 " - {name}({}): {}",
                 func.arguments
@@ -58,11 +58,11 @@ fn main() {
             );
         }
         println!("Variables:");
-        for (name, typ) in &compiler.variable_type {
+        for (name, typ) in &compiler.variable {
             println!(" - {name}: {}", typ.compress_alias(&compiler).format());
         }
         println!("Globals:");
-        for (name, typ) in &compiler.global_type {
+        for (name, typ) in &compiler.global {
             println!(" - {name}: {}", typ.compress_alias(&compiler).format());
         }
         println!("Aliases:");
@@ -73,7 +73,7 @@ fn main() {
         for (name, (args, _)) in &compiler.r#macro {
             println!(" - {name}({})", args.join(", "));
         }
-        let returns = compiler.program_return.compress_alias(&compiler).format();
+        let returns = compiler.result.compress_alias(&compiler).format();
         println!("Returns: {returns}");
     }
 
