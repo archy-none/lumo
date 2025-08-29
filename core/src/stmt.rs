@@ -59,9 +59,10 @@ impl Node for Stmt {
         } else if let Some(source) = source.strip_prefix("try ") {
             tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
             let r#catch = tokens.iter().position(|i| i == "catch")?;
-            let expr = Expr::parse(&join!(tokens.get(0..r#catch)?))?;
-            let r#catch = Stmt::parse(&join!(tokens.get(r#catch + 1..)?))?;
-            Some(Stmt::Try(expr, Box::new(r#catch)))
+            Some(Stmt::Try(
+                parse!(Expr, 0..r#catch),
+                Box::new(parse!(Stmt, r#catch + 1..)),
+            ))
         } else if let Some(token) = source.strip_prefix("let ") {
             if let Some((name, value)) = token.split_once("=") {
                 let (name, value) = (Expr::parse(name)?, Expr::parse(value)?);
