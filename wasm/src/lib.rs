@@ -31,7 +31,7 @@ pub fn lumo(source: &str) -> Result<Lumo, String> {
         })
     } else {
         let error_message = "failed to parse, compile or check type consistency";
-        Err(compiler.occurred_error.unwrap_or(error_message.to_string()))
+        Err(compiler.error.unwrap_or(error_message.to_string()))
     }
 }
 
