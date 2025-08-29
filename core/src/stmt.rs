@@ -40,7 +40,7 @@ impl Node for Stmt {
                 Some(Stmt::If(
                     parse!(Expr, 0..then),
                     parse!(Expr, then + 1..r#else),
-                    Some(Box::new(r#parse!(Stmt, r#else + 1..))),
+                    Some(Box::new(parse!(Stmt, r#else + 1..))),
                 ))
             } else {
                 Some(Stmt::If(
