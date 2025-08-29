@@ -27,27 +27,36 @@ pub enum Scope {
 impl Node for Stmt {
     fn parse(source: &str) -> Option<Self> {
         let source = source.trim();
+        let tokens: Vec<String>;
+        macro_rules! parse {
+            ($node: ident, $range: expr) => {
+                $node::parse(&join!(tokens.get($range)?))?
+            };
+        }
         if let Some(source) = source.strip_prefix("if ") {
-            let tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
+            tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
             let then = tokens.iter().position(|i| i == "then")?;
             if let Some(r#else) = tokens.iter().position(|i| i == "else") {
-                let cond = Expr::parse(&join!(tokens.get(0..then)?))?;
-                let then = Expr::parse(&join!(tokens.get(then + 1..r#else)?))?;
-                let r#else = Stmt::parse(&join!(tokens.get(r#else + 1..)?))?;
-                Some(Stmt::If(cond, then, Some(Box::new(r#else))))
+                Some(Stmt::If(
+                    parse!(Expr, 0..then),
+                    parse!(Expr, then + 1..r#else),
+                    Some(Box::new(r#parse!(Stmt, r#else + 1..))),
+                ))
             } else {
-                let cond = Expr::parse(&join!(tokens.get(0..then)?))?;
-                let then = Expr::parse(&join!(tokens.get(then + 1..)?))?;
-                Some(Stmt::If(cond, then, None))
+                Some(Stmt::If(
+                    parse!(Expr, 0..then),
+                    parse!(Expr, then + 1..),
+                    None,
+                ))
             }
         } else if let Some(source) = source.strip_prefix("while ") {
-            let tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
+            tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
             let r#loop = tokens.iter().position(|i| i == "loop")?;
             let cond = Expr::parse(&join!(tokens.get(0..r#loop)?))?;
             let body = Expr::parse(&join!(tokens.get(r#loop + 1..)?))?;
             Some(Stmt::While(cond, body))
         } else if let Some(source) = source.strip_prefix("try ") {
-            let tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
+            tokens = tokenize(source, SPACE.as_ref(), false, true, false)?;
             let r#catch = tokens.iter().position(|i| i == "catch")?;
             let expr = Expr::parse(&join!(tokens.get(0..r#catch)?))?;
             let r#catch = Stmt::parse(&join!(tokens.get(r#catch + 1..)?))?;
@@ -97,7 +106,7 @@ impl Node for Stmt {
             Some(Stmt::Macro(name, args, Expr::parse(value)?))
         } else if let Some(source) = source.strip_prefix("overload ") {
             let (name, value) = source.split_once("=")?;
-            let tokens = tokenize(value, SPACE.as_ref(), true, true, false)?;
+            tokens = tokenize(value, SPACE.as_ref(), true, true, false)?;
             let [lhs, op, rhs] = tokens.as_slice() else {
                 return None;
             };
