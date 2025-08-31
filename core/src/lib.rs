@@ -94,15 +94,17 @@ impl Compiler {
         let ast = Block::parse(source)?;
         self.result = ast.type_infer(self)?;
         Some(format!(
-            "(module {import} {memory} {tag} {memcpy} {strings} {declare} {global} (func (export \"_start\") {ret} {locals} {code}))",
-            code = ast.compile(self)?,
-            ret = compile_return!(self.result.clone(), self),
+            "(module {import} {memory} {memcpy} {strings} {declare} {global} {main})",
+            main = format!(
+                "(func (export \"_start\") {ret} {locals} {code})",
+                code = ast.compile(self)?,
+                locals = expand_local(self)?,
+                ret = compile_return!(self.result.clone(), self),
+            ),
             import = join!(self.import),
             strings = join!(self.data),
             declare = join!(self.declare),
             global = expand_global(self)?,
-            locals = expand_local(self)?,
-            tag = "(tag $err)",
             memory = "(memory $mem (export \"mem\") 64)",
             memcpy = &format!(
                 "(global $allocator (export \"allocator\") (mut i32) (i32.const {allocator})) {}",
