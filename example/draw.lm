@@ -13,12 +13,12 @@ let draw_circle(cx: num, cy: num, r: num) = {
     let angle = 0;
     while angle < 360 loop {
         let rad = rad(angle);
-        let x = cx + r * cos(rad);
-        let y = cy + r * sin(rad);
+        let x = cx + r * cos(rad): int;
+        let y = cy + r * sin(rad): int;
 
         let i = 0;
         while i < 100 loop {
-            draw(x: int + i, y: int + i, color);
+            draw(x + i, y + i, color);
             let i + 1
         };
         let angle + 1
