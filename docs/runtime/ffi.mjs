@@ -12,6 +12,7 @@ export function read(instance, type, value) {
         if (value == -1) return null;
         let stringLength = value;
         while (memoryView[stringLength] != 0) stringLength++;
+
         const stringBytes = memoryView.slice(value, stringLength);
         const textDecoder = new TextDecoder("utf-8");
         return textDecoder.decode(stringBytes);
@@ -19,10 +20,12 @@ export function read(instance, type, value) {
         if (value == -1) return null;
         const innerType = type.element;
         let [result, addr] = [[], value + BYTES];
+
         const length = concatBytes(memoryView.slice(value, addr), false);
         for (let index = 0; index < length; index++) {
             const sliced = memoryView.slice(addr, addr + BYTES);
             const elem = concatBytes(sliced, innerType == "num");
+
             result.push(read(instance, innerType, elem));
             addr += BYTES;
         }
@@ -30,12 +33,17 @@ export function read(instance, type, value) {
     } else if (type.type == "dict") {
         if (value == -1) return null;
         const [pointer, result] = [value, {}];
+        let offset = 0;
+
         for (let [name, field] of Object.entries(type.fields)) {
-            const address = pointer + field.offset;
-            const sliced = memoryView.slice(address, address + BYTES);
-            const value = concatBytes(sliced, field.type == "num");
-            const fieldType = field.type.type == "alias" ? type : field.type;
+            const addr = pointer + offset;
+            const sliced = memoryView.slice(addr, addr + BYTES);
+
+            const value = concatBytes(sliced, field == "num");
+            const fieldType = field.type == "alias" ? type : field;
+
             result[name] = read(instance, fieldType, value);
+            offset += BYTES;
         }
         return result;
     } else if (type.type == "enum") {
