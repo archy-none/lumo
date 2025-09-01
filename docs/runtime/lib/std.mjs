@@ -127,11 +127,7 @@ export class LumoWebLib extends LumoStdLib {
             const ctx = document.getElementById("lumo-canvas").getContext("2d");
             const type = {
                 type: "dict",
-                fields: {
-                    r: { type: "int", offset: 0 },
-                    g: { type: "int", offset: 4 },
-                    b: { type: "int", offset: 8 },
-                },
+                fields: { r: "int", g: "int", b: "int" },
             };
             color = read(this.instance, type, color);
             ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
