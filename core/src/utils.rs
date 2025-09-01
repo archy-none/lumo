@@ -218,14 +218,12 @@ macro_rules! correct {
 macro_rules! overload {
     ($self: expr, $ctx: expr, $method: ident) => {{
         let mut overload = || {
-            let terms = $self.binop_term()?;
-            let terms_typ = (
-                terms.0.type_infer($ctx)?.format(),
-                terms.1.type_infer($ctx)?.format(),
-            );
-            let key = ($self.overload_id()?, terms_typ);
+            let (lhs, rhs) = $self.binop_term()?;
+            let lhs_typ = lhs.type_infer($ctx)?.format();
+            let rhs_typ = rhs.type_infer($ctx)?.format();
+            let key = ($self.overload_id()?, (lhs_typ, rhs_typ));
             if let Some(func) = $ctx.overload.get(&key) {
-                return Expr::Call(func.to_string(), vec![terms.0, terms.1]).$method($ctx);
+                return Expr::Call(func.to_string(), vec![lhs, rhs]).$method($ctx);
             } else {
                 None
             }
