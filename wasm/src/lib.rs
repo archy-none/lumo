@@ -45,10 +45,7 @@ pub fn type_to_json(typ: &Type) -> String {
         Type::Dict(dict) => format!(
             "{{ type: \"dict\", fields: {{ {} }} }}",
             dict.iter()
-                .map(|(k, (offset, typ))| format!(
-                    "{k}: {{ type: {}, offset: {offset} }}",
-                    type_to_json(typ)
-                ))
+                .map(|(k, typ)| format!("{k}: {}", type_to_json(typ)))
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
