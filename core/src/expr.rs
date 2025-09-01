@@ -93,6 +93,9 @@ impl Node for Expr {
         // Enumerate access `( a | b )#a`
         } else if source.contains("#") {
             let (typ, enum_) = source.rsplit_once("#")?;
+            if !is_identifier(&enum_) {
+                return None;
+            };
             let enum_ = Value::Enum(Type::parse(typ)?, enum_.to_owned());
             Some(Expr::Literal(enum_))
         // Variable reference
