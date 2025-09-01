@@ -7,7 +7,7 @@ mod r#type;
 mod utils;
 mod value;
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use unicode_xid::UnicodeXID;
 
 pub use {
