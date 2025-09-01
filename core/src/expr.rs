@@ -153,7 +153,7 @@ impl Node for Expr {
                     return None;
                 };
                 let inner_typ = dict.get(key)?.clone();
-                let offset = dict.get_index_of(key)? as i32;
+                let offset = dict.get_index_of(key)? as i32 * BYTES;
                 let addr = offset_calc!(expr, offset, typ.clone());
                 Expr::Peek(Box::new(addr), inner_typ).compile(ctx)?
             }
