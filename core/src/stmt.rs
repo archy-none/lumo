@@ -230,7 +230,8 @@ impl Node for Stmt {
                     let Type::Dict(dict) = typ.clone() else {
                         return None;
                     };
-                    let (offset, inner_typ) = dict.get(key)?.clone();
+                    let inner_typ = dict.get(key)?.clone();
+                    let offset = dict.get_index_of(key)? as i32;
                     type_check!(inner_typ, value.type_infer(ctx)?, ctx)?;
                     let addr = Box::new(offset_calc!(expr, offset, typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?

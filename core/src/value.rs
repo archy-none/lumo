@@ -167,11 +167,9 @@ impl Node for Value {
             }
             Value::Dict(dict) => {
                 let mut result = IndexMap::new();
-                let mut index: i32 = 0;
                 for (name, elm) in dict {
                     let typ = elm.type_infer(ctx)?;
-                    result.insert(name.to_string(), (index, typ.clone()));
-                    index += BYTES;
+                    result.insert(name.to_string(), typ.clone());
                 }
                 Type::Dict(result)
             }

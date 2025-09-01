@@ -1,6 +1,6 @@
 use crate::*;
 
-pub type Dict = IndexMap<String, (i32, Type)>;
+pub type Dict = IndexMap<String, Type>;
 pub type Enum = Vec<String>;
 #[derive(Clone, Debug)]
 pub enum Type {
@@ -31,7 +31,6 @@ impl Node for Type {
                 } else if source.starts_with("@{") && source.ends_with("}") {
                     let source = source.get(2..source.len() - 1)?.trim();
                     let mut result = IndexMap::new();
-                    let mut offset = 0;
                     for line in tokenize(source, &[","], false, true, false)? {
                         let (name, value) = line.split_once(":")?;
                         let name = name.trim().to_string();
@@ -39,8 +38,7 @@ impl Node for Type {
                             return None;
                         };
                         let typ = Type::parse(value)?;
-                        result.insert(name, (offset, typ));
-                        offset += BYTES;
+                        result.insert(name, typ);
                     }
                     Some(Type::Dict(result))
                 } else if source.starts_with("(") && source.ends_with(")") {
@@ -102,11 +100,9 @@ impl Type {
             ))),
             Type::Dict(dict) => {
                 let mut a = IndexMap::new();
-                let mut offset = 0;
-                for (name, (_, typ)) in dict {
+                for (name, typ) in dict {
                     let typ = typ.solve_alias(ctx, [xpct.clone(), vec![self.clone()]].concat())?;
-                    a.insert(name.clone(), (offset.clone(), typ.clone()));
-                    offset += BYTES
+                    a.insert(name.clone(), typ.clone());
                 }
                 Some(Type::Dict(a))
             }
@@ -120,7 +116,7 @@ impl Type {
             Type::Array(typ) => Type::Array(Box::new(typ.compress_alias(ctx))),
             Type::Dict(dict) => Type::Dict(
                 dict.iter()
-                    .map(|(k, (o, t))| (k.clone(), (o.clone(), t.compress_alias(ctx))))
+                    .map(|(key, typ)| (key.clone(), (typ.compress_alias(ctx))))
                     .collect(),
             ),
             _ => self.clone(),
@@ -142,7 +138,7 @@ impl Type {
             Type::Dict(dict) => format!(
                 "@{{ {} }}",
                 dict.iter()
-                    .map(|(key, (_, typ))| format!("{key}: {}", typ.format()))
+                    .map(|(key, typ)| format!("{key}: {}", typ.format()))
                     .collect::<Vec<_>>()
                     .join(", ")
             ),

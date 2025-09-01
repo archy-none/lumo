@@ -152,7 +152,8 @@ impl Node for Expr {
                 let Type::Dict(dict) = typ.clone() else {
                     return None;
                 };
-                let (offset, inner_typ) = dict.get(key)?.clone();
+                let inner_typ = dict.get(key)?.clone();
+                let offset = dict.get_index_of(key)? as i32;
                 let addr = offset_calc!(expr, offset, typ.clone());
                 Expr::Peek(Box::new(addr), inner_typ).compile(ctx)?
             }
@@ -237,7 +238,7 @@ impl Node for Expr {
             Expr::Field(dict, key) => {
                 let infered = dict.type_infer(ctx)?.type_infer(ctx)?;
                 if let Type::Dict(dict) = infered.clone() {
-                    let Some((_offset, typ)) = dict.get(key) else {
+                    let Some(typ) = dict.get(key) else {
                         let error_message = format!("{} haven't field `{key}`", infered.format());
                         ctx.error = Some(error_message);
                         return None;
