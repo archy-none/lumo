@@ -1,7 +1,7 @@
 use crate::*;
 
 pub type Dict = IndexMap<String, Type>;
-pub type Enum = Vec<String>;
+pub type Enum = IndexSet<String>;
 #[derive(Clone, Debug)]
 pub enum Type {
     Integer,
@@ -44,7 +44,8 @@ impl Node for Type {
                 } else if source.starts_with("(") && source.ends_with(")") {
                     let source = source.get(1..source.len() - 1)?.trim();
                     let result = tokenize(source, &["|"], false, true, false)?;
-                    let result: Vec<String> = result.iter().map(|x| x.trim().to_string()).collect();
+                    let result: IndexSet<String> =
+                        result.iter().map(|x| x.trim().to_string()).collect();
                     if !result.iter().all(|x| is_identifier(x)) {
                         return None;
                     };
@@ -142,7 +143,10 @@ impl Type {
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
-            Type::Enum(e) => format!("( {} )", e.join(" | ")),
+            Type::Enum(e) => format!(
+                "( {} )",
+                e.iter().cloned().collect::<Vec<String>>().join(" | ")
+            ),
             Type::Array(typ) => format!("[{}]", typ.format()),
             Type::Alias(name) => name.to_string(),
         }
