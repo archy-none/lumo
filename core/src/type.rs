@@ -37,8 +37,7 @@ impl Node for Type {
                         if !is_identifier(&name) {
                             return None;
                         };
-                        let typ = Type::parse(value)?;
-                        result.insert(name, typ);
+                        result.insert(name, Type::parse(value)?);
                     }
                     Some(Type::Dict(result))
                 } else if source.starts_with("(") && source.ends_with(")") {
