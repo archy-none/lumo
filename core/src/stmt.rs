@@ -284,8 +284,20 @@ impl Node for Stmt {
                 ctx.in_while = in_while;
                 Type::Void
             }
-            Stmt::Break => Type::Void,
-            Stmt::Next => Type::Void,
+            Stmt::Break => {
+                if !ctx.in_while {
+                    ctx.error = Some("break statement outside of loop".to_string());
+                    return None;
+                }
+                Type::Void
+            }
+            Stmt::Next => {
+                if !ctx.in_while {
+                    ctx.error = Some("next statement outside of loop".to_string());
+                    return None;
+                }
+                Type::Void
+            }
             Stmt::Let(scope, name, value) => {
                 match name {
                     Expr::Variable(name) => match scope {
