@@ -9,6 +9,5 @@ while i < 10 loop {
         print(f"{i} x {j} = {i * j}");
         let j + 1
     };
-    break;
     let i + 1
 }
