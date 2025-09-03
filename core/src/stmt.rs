@@ -277,9 +277,9 @@ impl Node for Stmt {
                 }
             }
             Stmt::While(cond, body) => {
+                type_check!(cond, Type::Bool, ctx)?;
                 let in_while = ctx.in_while;
                 ctx.in_while = true;
-                type_check!(cond, Type::Bool, ctx)?;
                 body.type_infer(ctx)?;
                 ctx.in_while = in_while;
                 Type::Void
