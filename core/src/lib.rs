@@ -56,6 +56,8 @@ pub struct Compiler {
     pub type_alias: IndexMap<String, Type>,
     /// Errors that occurred during compilation
     pub error: Option<String>,
+    /// Flag to indicate if we are inside a while loop
+    pub in_while: bool,
     /// Type environment for variable
     pub variable: IndexMap<String, Type>,
     /// Type environment for global varibale
