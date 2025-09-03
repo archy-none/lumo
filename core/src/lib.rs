@@ -80,6 +80,7 @@ impl Compiler {
             data: vec![],
             declare: vec![],
             error: None,
+            in_while: false,
             r#macro: IndexMap::new(),
             overload: IndexMap::new(),
             type_alias: IndexMap::new(),
