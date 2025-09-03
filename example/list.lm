@@ -4,6 +4,7 @@ let node(value: int) = memcpy(@{ car: value, cdr: LinkList! });
 let append(self: LinkList, other: LinkList) = {
     let current = self;
     while current.cdr? loop {
+        break;
         let current = current.cdr
     };
     let current.cdr = other;
