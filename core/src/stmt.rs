@@ -155,11 +155,14 @@ impl Node for Stmt {
                 )
             }
             Stmt::While(cond, body) => {
+                let in_while = ctx.in_while;
+                ctx.in_while = true;
+                let body = body.compile(ctx)?;
+                let next = Stmt::Next.compile(ctx)?;
+                ctx.in_while = in_while;
                 format!(
-                    "(block $outer (loop $while_start (br_if $outer (i32.eqz {})) {} {}))",
+                    "(block $outer (loop $while_start (br_if $outer (i32.eqz {})) {body} {next}))",
                     cond.compile(ctx)?,
-                    body.compile(ctx)?,
-                    Stmt::Next.compile(ctx)?
                 )
             }
             Stmt::Next => "(br $while_start)".to_string(),
