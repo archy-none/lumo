@@ -30,7 +30,7 @@ if (args.length === 0) {
         console.log("Bye");
         process.exit(0);
     });
-} else if (args.length === 2 && args[0] === "-e") {
+} else if (args.length === 2 && args[0] === "-l") {
     console.log(await lumo(args[1]));
 } else {
     const filePath = args[0];
