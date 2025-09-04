@@ -30,6 +30,8 @@ if (args.length === 0) {
         console.log("Bye");
         process.exit(0);
     });
+} else if (args.length === 2 && args[0] === "-e") {
+    console.log(await lumo(args[1]));
 } else {
     const filePath = args[0];
     const source = readFileSync(filePath, "utf8");
