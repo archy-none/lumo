@@ -1,5 +1,7 @@
 load to_str(n: num): str;
+load to_num(n: str): num;
 load print(n: str): void;
+load os.argv(): [str];
 
 let fizzbuzz(n: int) = {
     if n % 15 == 0 then "FizzBuzz"
@@ -9,7 +11,8 @@ let fizzbuzz(n: int) = {
 };
 
 let i = 1;
-while i <= 100 loop {
+let n = argv()[3]: int;
+while i <= n loop {
     i.fizzbuzz().print();
     let i + 1
 }
