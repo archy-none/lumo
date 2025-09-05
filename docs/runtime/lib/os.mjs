@@ -5,6 +5,12 @@ import path from "path";
 export class LumoOSLib {
     constructor() {
         this.functions = {
+            argv: () =>
+                write(
+                    this.instance,
+                    { type: "array", element: "str" },
+                    process.argv,
+                ),
             getcwd: () => write(this.instance, "str", process.cwd()),
             remove: (value) => fs.unlinkSync(read(this.instance, "str", value)),
             mkdir: (value) => fs.mkdirSync(read(this.instance, "str", value)),
