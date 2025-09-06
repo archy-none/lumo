@@ -1,17 +1,21 @@
 body {
+    padding: 5px;
     font-size: large;
-}
-.inline-elements {
-    gap: 10px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-#code {
-    height: 15rlh;
-    resize: vertical;
-}
-#code,
-#result {
-    font-family: monospace;
+    .inline {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    #code {
+        height: 15rlh;
+        resize: vertical;
+    }
+    #code,
+    #result {
+        font-family: monospace;
+    }
+    textarea {
+        width: 100%;
+    }
 }
