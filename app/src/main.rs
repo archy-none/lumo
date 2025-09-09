@@ -34,7 +34,7 @@ fn main() {
     let original_dir = current_dir().unwrap();
     set_current_dir(Path::new(filename).parent().unwrap()).unwrap();
     let Some(wat_code) = compiler.build(&source) else {
-        let error_message = "failed to parse, compile or check type consistency";
+        let error_message = "failed to parse, compile or type check";
         let err = compiler.error.unwrap_or(error_message.to_owned());
         eprintln!("Error: {err}");
         return;
