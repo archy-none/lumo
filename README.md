@@ -22,7 +22,7 @@ LumoはWebAssembly(WASM)にコンパイルすることに特化して設計さ�
 
 ### WebAssembly統合
 - **高速実行**: LLVMを介さず独自のバックエンドで効率的なバイトコードを生成します
-- **JavaScript相互運用**: FFIによるJavaScriptオブジェクトとのシームレスな変換
+- **JavaScript相互運用**: JavaScriptオブジェクトとFFIによってシームレスに変換できます
 - **Web・Node.js対応**: フロントエンド・バックエンド両環境のランタイムで動作します
 - **仮想DOM**: 仮想DOMサポート付きの組み込みUIフレームワークでWebアプリを簡単に作れます
 
@@ -84,6 +84,8 @@ Functions:
  - node(value: int): LinkList
  - append(self: LinkList, other: LinkList): LinkList
  - clone(self: LinkList): LinkList
+Overloads:
+ - append: LinkList + LinkList
 Variables:
  - a: LinkList
  - b: LinkList
