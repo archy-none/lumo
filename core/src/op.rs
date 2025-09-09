@@ -264,7 +264,30 @@ impl Node for Op {
 }
 
 impl Op {
-    pub fn overload_id(&self) -> Option<usize> {
+    pub fn overload_id_table() -> IndexMap<String, usize> {
+        IndexMap::from([
+            ("+".to_owned(), 1),
+            ("-".to_owned(), 2),
+            ("*".to_owned(), 3),
+            ("/".to_owned(), 4),
+            ("%".to_owned(), 5),
+            (">>".to_owned(), 6),
+            ("<<".to_owned(), 7),
+            ("==".to_owned(), 8),
+            ("!=".to_owned(), 9),
+            ("<".to_owned(), 10),
+            (">".to_owned(), 11),
+            ("<=".to_owned(), 13),
+            (">=".to_owned(), 12),
+            ("&".to_owned(), 14),
+            ("|".to_owned(), 15),
+            ("^".to_owned(), 17),
+            ("&&".to_owned(), 18),
+            ("||".to_owned(), 19),
+        ])
+    }
+
+    pub fn get_overload_id(&self) -> Option<usize> {
         Some(match self {
             Op::Add(_, _) => 1,
             Op::Sub(_, _) => 2,

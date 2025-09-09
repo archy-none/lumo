@@ -1,6 +1,6 @@
 use chrono::Local;
 use clap::Parser;
-use lumo_core::Compiler;
+use lumo_core::{Compiler, Op};
 use sha2::{Digest, Sha256};
 use std::{
     env::{current_dir, set_current_dir},
@@ -56,6 +56,12 @@ fn main() {
                     .join(", "),
                 func.returns.compress_alias(&compiler).format()
             );
+        }
+        println!("Overloads:");
+        let table = Op::overload_id_table();
+        for ((op, (lhs, rhs)), function) in &compiler.overload {
+            let op = table.iter().find(|&(_, id)| id == op).unwrap().0;
+            println!(" - {function} = {lhs} {op} {rhs}");
         }
         println!("Variables:");
         for (name, typ) in &compiler.variable {

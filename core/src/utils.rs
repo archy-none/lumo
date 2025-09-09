@@ -221,7 +221,7 @@ macro_rules! overload {
             let (lhs, rhs) = $self.binop_term()?;
             let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx).format();
             let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx).format();
-            let key = ($self.overload_id()?, (lhs_typ, rhs_typ));
+            let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
             if let Some(func) = $ctx.overload.get(&key) {
                 return Expr::Call(func.to_string(), vec![lhs, rhs]).$method($ctx);
             } else {

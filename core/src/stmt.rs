@@ -113,7 +113,7 @@ impl Node for Stmt {
                 return None;
             };
             Some(Stmt::Overload(
-                Op::parse(&format!("0 {op} 0"))?.overload_id()?,
+                *Op::overload_id_table().get(op)?,
                 (Type::parse(lhs)?, Type::parse(rhs)?),
                 name.trim().to_owned(),
             ))
