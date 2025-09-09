@@ -30,7 +30,7 @@ pub fn lumo(source: &str) -> Result<Lumo, String> {
             return_type: type_to_json(&compiler.result),
         })
     } else {
-        let error_message = "failed to parse, compile or check type consistency";
+        let error_message = "failed to parse, compile or type check";
         Err(compiler.error.unwrap_or(error_message.to_string()))
     }
 }
