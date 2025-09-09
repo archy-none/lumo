@@ -24,7 +24,6 @@ let is_prime(n: int) = {
 
 let frame = "div".new_elm(-1);
 frame.upd_elm("style", "margin: 100px");
-frame.evt_elm("keydown", "shortcut_key");
 new_elm("h1", frame).upd_elm("innerHTML", "Prime App");
 
 pub let input = "input".new_elm(frame);
