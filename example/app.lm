@@ -29,7 +29,6 @@ let frame = {
     title.upd_elm("innerHTML", "Prime App");
     frame
 };
-title;
 
 pub let input = "input".new_elm(frame);
 pub let view = "p".new_elm(frame);
