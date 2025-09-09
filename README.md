@@ -27,76 +27,9 @@ LumoはWebAssembly(WASM)にコンパイルすることに特化して設計さ�
 - **Web・Node.js対応**: フロントエンド・バックエンド両環境のランタイムで動作します
 - **仮想DOM**: 仮想DOMサポート付きの組み込みUIフレームワークでWebアプリを簡単に作れます
 
-## 言語構文
+## プログラム例
 
-### 変数と関数
-```lumo
-~~ 変数宣言 ~~
-let x = 5;
-
-~~ 関数定義 ~~
-let fact(n: int): int = {
-    if n == 0
-        then 1 ~~ 再帰 ~~
-        else n * fact(n - 1)
-};
-
-~~ 関数呼び出し ~~
-fact(x) == x.fact()
-```
-
-### 制御フロー
-```lumo
-~~ 繰り返し ~~
-while i < 10 loop {
-    ~~ 条件分岐 ~~
-    if i % 2 == 0 then {
-        ~~ フォーマット文字列 ~~
-        let message = f"{i} is an even number";
-        print(message)
-    };
-    let i + 1
-}
-```
-
-### オブジェクト
-```lumo
-~~ 配列と構造体 ~~
-let numbers = [1, 2, 3, 4, 5];
-let person = @{ name: "Alice", age: 12 };
-
-~~ 内部値の操作 ~~
-let numbers[-1] * 10;
-let person.name = "Bob";
-
-~~ 列挙型 ~~
-type Status = ( Success | Error | Pending );
-let current = Status#Pending
-```
-
-### マクロ
-```lumo
-~~ マクロ定義 ~~
-macro inc(n) = {
-    ~~ 静的例外処理 ~~
-    try n + 1 catch n + 1.0
-};
-
-~~ 使用例 ~~
-inc(5): num + inc(3.14)
-```
-
-### 演算子のオーバーロード
-```lumo
-~~ JavaScript関数の読み込み ~~
-load repeat(text: str, count: int): str;
-
-~~ 関数を特定の型の演算に適用 ~~
-overload repeat = str * int;
-"Hey " * 10
-```
-
-## サンプルコード
+Lumoでは、定番のアルゴリズムも以下のように簡潔に記述することが出来ます。
 
 ### FizzBuzz
 ```lumo
