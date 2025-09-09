@@ -70,9 +70,11 @@ let clone(self: LinkList) = {
     object
 };
 
+overload append = LinkList + LinkList;
+
 let a = node(1);
 let b = node(2).append(node(3));
-a.append(b).append(b.clone())
+a + b + b.clone()
 ```
 
 型推論サマリーの出力 (`lumo example/list.lm --summary`)
