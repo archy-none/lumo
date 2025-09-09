@@ -143,7 +143,7 @@ export class LumoWebLib extends LumoStdLib {
         };
         this.functions.prp_elm = (id, property) => {
             property = read(this.instance, "str", property);
-            let elm = document.getElementById(getMystiaDom(id));
+            let elm = document.getElementById(getLumoDom(id));
             if (elm === null) elm = document.querySelector(id);
             console.log(elm, property, elm[property]);
             if (property == "style") {
