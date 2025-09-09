@@ -22,16 +22,22 @@ let is_prime(n: int) = {
     }
 };
 
-let frame = "div".new_elm(-1);
-frame.upd_elm("style", "margin: 100px");
-new_elm("h1", frame).upd_elm("innerHTML", "Prime App");
+let frame = {
+    let frame = "div".new_elm(-1);
+    frame.upd_elm("style", "margin: 100px");
+    new_elm("h1", frame).upd_elm("innerHTML", "Prime App");
+    frame
+};
 
 pub let input = "input".new_elm(frame);
 pub let view = "p".new_elm(frame);
 
-let button = "button".new_elm(frame);
-button.upd_elm("innerHTML", "Judge");
-button.evt_elm("click", "judge");
+let button = {
+    let button = "button".new_elm(frame);
+    button.upd_elm("innerHTML", "Judge");
+    button.evt_elm("click", "judge");
+    button
+};
 
 pub let judge() = {
     let value = input.prp_elm("value"): int;
