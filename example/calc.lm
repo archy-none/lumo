@@ -8,9 +8,15 @@ load join(a: [str], b: str): str;
 load arrlen(a: [str]): int;
 load to_str(a: num): str;
 load to_num(a: str): int;
+load os.argv(): [str];
 
 type Kind = ( Add | Sub | Mul | Div | LiteralInt );
-type Expr = @{ kind: Kind, literal_int: int, lhs: Expr, rhs: Expr };
+type Expr = @{
+    kind: Kind,
+    literal_int: int,
+    lhs: Expr,
+    rhs: Expr
+};
 
 let compile(expr: Expr): str = {
     macro const(typ, value) = f"({typ}.const {value})";
@@ -36,13 +42,15 @@ let compile(expr: Expr): str = {
 let node_literal_int(value: int) = memcpy(@{
     kind: Kind#LiteralInt,
     literal_int: value,
-    lhs: Expr!, rhs: Expr!
+    lhs: Expr!,
+    rhs: Expr!
 });
 
 let node_binop(k: Kind, a: Expr, b: Expr) = memcpy(@{
     kind: k,
     literal_int: 0,
-    lhs: a, rhs: b
+    lhs: a,
+    rhs: b
 });
 
 let lexer(source: str) = {
@@ -103,5 +111,5 @@ let parse(source: str): Expr = {
     }
 };
 
-let ast = parse("3 * (1 + 2) - 4");
+let ast = parse(argv()[3]);
 ast.compile()
