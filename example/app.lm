@@ -25,9 +25,11 @@ let is_prime(n: int) = {
 let frame = {
     let frame = "div".new_elm(-1);
     frame.upd_elm("style", "margin: 100px");
-    new_elm("h1", frame).upd_elm("innerHTML", "Prime App");
+    let title = new_elm("h1", frame);
+    title.upd_elm("innerHTML", "Prime App");
     frame
 };
+title;
 
 pub let input = "input".new_elm(frame);
 pub let view = "p".new_elm(frame);
