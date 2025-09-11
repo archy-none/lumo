@@ -1,7 +1,5 @@
 use crate::*;
 
-/// Import function signature: name, arguments, return, alias
-type Signature = (String, Vec<(String, Type)>, Type);
 #[derive(Clone, Debug)]
 pub enum Stmt {
     Expr(Expr),
