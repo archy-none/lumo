@@ -29,6 +29,8 @@ pub trait Node {
         Self: Node + Sized;
 }
 
+/// Import function signature: name, arguments, return, alias
+type Signature = (String, Vec<(String, Type)>, Type);
 /// Function includes local variables, arguments, and returns
 #[derive(Debug, Clone)]
 pub struct Function {
