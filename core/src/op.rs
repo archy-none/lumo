@@ -84,16 +84,16 @@ impl Node for Op {
                 _ => return None,
             })
         };
-        if let Some(op) = unaryopergen() {
-            return Some(op);
-        }
-        if let Some(op) = suffixopergen() {
-            return Some(op);
-        }
         for i in 2..tokens.len() {
             if let Some(op) = binopergen(tokens.len().checked_sub(i)?) {
                 return Some(op);
             }
+        }
+        if let Some(op) = suffixopergen() {
+            return Some(op);
+        }
+        if let Some(op) = unaryopergen() {
+            return Some(op);
         }
         None
     }
