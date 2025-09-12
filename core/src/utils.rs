@@ -11,56 +11,34 @@ pub const RESERVED: [&str; 15] = [
     "overload", "try", "catch",
 ];
 
-pub fn expand_local(ctx: &mut Compiler) -> Option<String> {
-    Some(join!(
-        ctx.variable
-            .clone()
-            .iter()
-            .map(|(name, typ)| Some(format!("(local ${name} {})", typ.compile(ctx)?)))
-            .collect::<Option<Vec<String>>>()?
-    ))
-}
-
-pub fn expand_global(ctx: &mut Compiler) -> Option<String> {
-    Some(join!(
-        ctx.global
-            .clone()
-            .iter()
-            .map(|(name, typ)| {
-                Some(format!(
-                    "(global ${name} (mut {typ}) ({typ}.const 0))",
-                    typ = typ.compile(ctx)?
-                ))
-            })
-            .collect::<Option<Vec<String>>>()?
-    ))
-}
-
 #[macro_export]
-macro_rules! compile_return {
-    ($ret: expr, $ctx: expr) => {{
-        let ret = $ret.type_infer($ctx)?;
-        if let Type::Void = ret {
-            String::new()
-        } else {
-            format!("(result {})", ret.compile($ctx)?)
-        }
-    }};
-}
-
-#[macro_export]
-macro_rules! compile_args_type {
-    ($function: expr, $ctx: expr) => {
-        format!(
-            "(param {})",
-            join!(
-                $function
-                    .arguments
-                    .iter()
-                    .map(|(_, typ)| typ.compile($ctx))
-                    .collect::<Option<Vec<_>>>()?
-            )
+macro_rules! expand_local {
+    ($ctx: expr) => {
+        join!(
+            $ctx.variable
+                .clone()
+                .iter()
+                .map(|(name, typ)| Some(format!("(local ${name} {})", typ.compile($ctx)?)))
+                .collect::<Option<Vec<String>>>()?
         )
+    };
+}
+
+#[macro_export]
+macro_rules! expand_global {
+    ($ctx: expr) => {
+        Some(join!(
+            $ctx.global
+                .clone()
+                .iter()
+                .map(|(name, typ)| {
+                    Some(format!(
+                        "(global ${name} (mut {typ}) ({typ}.const 0))",
+                        typ = typ.compile($ctx)?
+                    ))
+                })
+                .collect::<Option<Vec<String>>>()?
+        ))
     };
 }
 
@@ -93,6 +71,34 @@ macro_rules! type_check {
 }
 
 #[macro_export]
+macro_rules! compile_return {
+    ($ret: expr, $ctx: expr) => {{
+        let ret = $ret.type_infer($ctx)?;
+        if let Type::Void = ret {
+            String::new()
+        } else {
+            format!("(result {})", ret.compile($ctx)?)
+        }
+    }};
+}
+
+#[macro_export]
+macro_rules! compile_args_type {
+    ($function: expr, $ctx: expr) => {
+        format!(
+            "(param {})",
+            join!(
+                $function
+                    .arguments
+                    .iter()
+                    .map(|(_, typ)| typ.compile($ctx))
+                    .collect::<Option<Vec<_>>>()?
+            )
+        )
+    };
+}
+
+#[macro_export]
 macro_rules! compile_arithmetic {
     ($oper: expr, $self: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
         type_check!($lhs, $rhs, $ctx)?;
@@ -107,7 +113,30 @@ macro_rules! compile_arithmetic {
 }
 
 #[macro_export]
-macro_rules! compile_compare {
+macro_rules! compile_args {
+    ($args: expr, $ctx: expr) => {
+        for arg in $args {
+            let Expr::Operator(oper) = arg else {
+                let msg = "function argument definition needs type annotation";
+                $ctx.error = Some(msg.to_string());
+                return None;
+            };
+            let Op::Cast(Expr::Variable(name), typ) = *oper.clone() else {
+                let msg = "function argument name should be identifier";
+                $ctx.error = Some(msg.to_string());
+                return None;
+            };
+            if let Some(typ) = typ.type_infer($ctx) {
+                $ctx.argument.insert(name.to_string(), typ);
+            } else {
+                $ctx.argument.insert(name.to_string(), typ);
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! compile_op {
     ($oper: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
         let ret = type_check!($lhs, $rhs, $ctx)?.compile($ctx)?;
         format!(
@@ -150,29 +179,6 @@ macro_rules! address_calc {
                 Expr::Literal(Value::Integer(BYTES)),
             ))),
         )))
-    };
-}
-
-#[macro_export]
-macro_rules! compile_args {
-    ($args: expr, $ctx: expr) => {
-        for arg in $args {
-            let Expr::Operator(oper) = arg else {
-                let msg = "function argument definition needs type annotation";
-                $ctx.error = Some(msg.to_string());
-                return None;
-            };
-            let Op::Cast(Expr::Variable(name), typ) = *oper.clone() else {
-                let msg = "function argument name should be identifier";
-                $ctx.error = Some(msg.to_string());
-                return None;
-            };
-            if let Some(typ) = typ.type_infer($ctx) {
-                $ctx.argument.insert(name.to_string(), typ);
-            } else {
-                $ctx.argument.insert(name.to_string(), typ);
-            }
-        }
     };
 }
 
