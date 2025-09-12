@@ -17,7 +17,7 @@ pub use {
     op::Op,
     stmt::Stmt,
     r#type::{Dict, Enum, Type},
-    utils::{BYTES, OPERATOR, RESERVED, SPACE, expand_global, expand_local},
+    utils::{BYTES, OPERATOR, RESERVED, SPACE},
     value::Value,
 };
 
