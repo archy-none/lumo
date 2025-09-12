@@ -330,7 +330,7 @@ impl Node for Stmt {
                         let arg_ctx = ctx.argument.clone();
                         ctx.variable.clear();
                         ctx.argument.clear();
-                        compile_args!(args, ctx);
+                        check_args!(args, ctx);
                         let frame = Function {
                             returns: value.type_infer(ctx)?,
                             variables: ctx.variable.clone(),
@@ -351,7 +351,7 @@ impl Node for Stmt {
                             let arg_ctx = ctx.argument.clone();
                             ctx.variable.clear();
                             ctx.argument.clear();
-                            compile_function!(args.clone(), ctx);
+                            check_args!(args.clone(), ctx);
                             ctx.function.insert(
                                 name.to_owned(),
                                 Function {
