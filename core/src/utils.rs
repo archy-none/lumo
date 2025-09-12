@@ -1,5 +1,3 @@
-use crate::*;
-
 pub const BYTES: i32 = 4;
 pub const SPACE: [&str; 5] = [" ", "　", "\n", "\t", "\r"];
 pub const OPERATOR: [&str; 23] = [
@@ -117,57 +115,19 @@ macro_rules! compile_args {
 }
 
 #[macro_export]
-macro_rules! compile_arithmetic {
-    ($oper: expr, $self: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
-        type_check!($lhs, $rhs, $ctx)?;
-        format!(
-            "({}.{} {} {})",
-            $lhs.type_infer($ctx)?.compile($ctx)?,
-            $oper,
-            $lhs.compile($ctx)?,
-            $rhs.compile($ctx)?
-        )
-    }};
-}
-
-#[macro_export]
-macro_rules! compile_function {
-    ($args: expr, $ctx: expr) => {
-        for arg in $args {
-            let Expr::Operator(oper) = arg else {
-                let msg = "function argument definition needs type annotation";
-                $ctx.error = Some(msg.to_string());
-                return None;
-            };
-            let Op::Cast(Expr::Variable(name), typ) = *oper.clone() else {
-                let msg = "function argument name should be identifier";
-                $ctx.error = Some(msg.to_string());
-                return None;
-            };
-            if let Some(typ) = typ.type_infer($ctx) {
-                $ctx.argument.insert(name.to_string(), typ);
-            } else {
-                $ctx.argument.insert(name.to_string(), typ);
-            }
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! compile_op {
     ($oper: expr, $ctx: expr, $lhs: expr, $rhs: expr) => {{
+        let mut oper = $oper.to_string();
         let ret = type_check!($lhs, $rhs, $ctx)?.compile($ctx)?;
-        format!(
-            "({ret}.{}{} {} {})",
-            $oper,
-            if ret == "i32" { "_s" } else { "" },
-            $lhs.compile($ctx)?,
-            $rhs.compile($ctx)?
-        )
+        let [lhs, rhs] = [$lhs.compile($ctx)?, $rhs.compile($ctx)?];
+        if ret == "f32" {
+            oper = $oper.replace("_s", "")
+        }
+        format!("({ret}.{oper} {lhs} {rhs})",)
     }};
-    ($oper: expr, $ctx: expr, $lhs: expr) => {{
-        let ret = $lhs.type_infer($ctx)?.compile($ctx)?;
-        format!("({}.{} {})", ret, $oper, $lhs.compile($ctx)?)
+    ($oper: expr, $ctx: expr, $term: expr) => {{
+        let ret = $term.type_infer($ctx)?.compile($ctx)?;
+        format!("({}.{} {})", ret, $oper, $term.compile($ctx)?)
     }};
 }
 
@@ -201,26 +161,6 @@ macro_rules! address_calc {
 }
 
 #[macro_export]
-macro_rules! import_args {
-    ($sigs: expr) => {{
-        let Op::Cast(Expr::Call(name, args), ret_typ) = Op::parse($sigs)? else {
-            return None;
-        };
-        let mut args_typ = vec![];
-        for arg in args {
-            let Expr::Operator(arg) = arg else {
-                return None;
-            };
-            let Op::Cast(Expr::Variable(arg_name), arg_typ) = *arg.clone() else {
-                return None;
-            };
-            args_typ.push((arg_name, arg_typ));
-        }
-        (name, args_typ, ret_typ)
-    }};
-}
-
-#[macro_export]
 macro_rules! overload {
     ($self: expr, $ctx: expr, $method: ident) => {{
         let mut overload = || {
@@ -237,6 +177,49 @@ macro_rules! overload {
         if let Some(overloaded) = overload() {
             return Some(overloaded);
         }
+    }};
+}
+
+#[macro_export]
+macro_rules! check_args {
+    ($args: expr, $ctx: expr) => {
+        for arg in $args {
+            let Expr::Operator(oper) = arg else {
+                let msg = "function argument definition needs type annotation";
+                $ctx.error = Some(msg.to_string());
+                return None;
+            };
+            let Op::Cast(Expr::Variable(name), typ) = *oper.clone() else {
+                let msg = "function argument name should be identifier";
+                $ctx.error = Some(msg.to_string());
+                return None;
+            };
+            if let Some(typ) = typ.type_infer($ctx) {
+                $ctx.argument.insert(name.to_string(), typ);
+            } else {
+                $ctx.argument.insert(name.to_string(), typ);
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! import_args {
+    ($sigs: expr) => {{
+        let Op::Cast(Expr::Call(name, args), ret_typ) = Op::parse($sigs)? else {
+            return None;
+        };
+        let mut args_typ = vec![];
+        for arg in args {
+            let Expr::Operator(arg) = arg else {
+                return None;
+            };
+            let Op::Cast(Expr::Variable(arg_name), arg_typ) = *arg.clone() else {
+                return None;
+            };
+            args_typ.push((arg_name, arg_typ));
+        }
+        (name, args_typ, ret_typ)
     }};
 }
 
