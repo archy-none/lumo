@@ -6,6 +6,8 @@ load concat(a: str, b: str): str;
 load to_str(n: num): str;
 load to_num(s: str): num;
 
+overload concat = str + str;
+
 let is_prime(n: int) = {
     if n < 2 then false
     else if n < 4 then true
