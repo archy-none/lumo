@@ -103,13 +103,13 @@ impl Compiler {
             main = format!(
                 "(func (export \"_start\") {ret} {locals} {code})",
                 code = ast.compile(self)?,
-                locals = expand_local(self)?,
+                locals = expand_local!(self),
                 ret = compile_return!(self.result.clone(), self),
             ),
             import = join!(self.import),
             strings = join!(self.data),
             declare = join!(self.declare),
-            global = expand_global(self)?,
+            global = expand_global!(self),
             memory = "(memory $mem (export \"mem\") 64)",
             memcpy = &format!(
                 "(global $allocator (export \"allocator\") (mut i32) (i32.const {allocator})) {}",
