@@ -76,7 +76,7 @@ macro_rules! correct {
             Some(ret)
         } else {
             let msg = format!(
-                "can't mathematical operation between {} and {}",
+                "can't this operation between {} and {}",
                 $lhs.type_infer($ctx)?.format(),
                 $rhs.type_infer($ctx)?.format()
             );
