@@ -165,10 +165,8 @@ impl Node for Op {
     fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
         overload!(self, ctx, type_infer);
         match self {
-            Op::Add(lhs, rhs) => {
-                correct!(lhs, rhs, ctx, Type::Number | Type::Integer | Type::String)
-            }
-            Op::Sub(lhs, rhs)
+            Op::Add(lhs, rhs)
+            | Op::Sub(lhs, rhs)
             | Op::Mul(lhs, rhs)
             | Op::Div(lhs, rhs)
             | Op::Mod(lhs, rhs)
@@ -178,12 +176,7 @@ impl Node for Op {
             | Op::BOr(lhs, rhs)
             | Op::XOr(lhs, rhs) => correct!(lhs, rhs, ctx, Type::Number | Type::Integer),
             Op::Eql(lhs, rhs) | Op::Neq(lhs, rhs) => {
-                correct!(
-                    lhs,
-                    rhs,
-                    ctx,
-                    Type::Number | Type::Integer | Type::String | Type::Enum(_)
-                )?;
+                correct!(lhs, rhs, ctx, Type::Number | Type::Integer | Type::Enum(_))?;
                 Some(Type::Bool)
             }
             Op::Lt(lhs, rhs) | Op::Gt(lhs, rhs) | Op::LtEq(lhs, rhs) | Op::GtEq(lhs, rhs) => {
