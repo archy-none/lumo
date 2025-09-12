@@ -132,24 +132,24 @@ impl Node for Op {
                 let minus_one = Expr::Literal(Value::Integer(-1));
                 compile_op!("xor", ctx, lhs, minus_one)
             }
-            Op::Cast(lhs, rhs) => {
-                let rhs = rhs.type_infer(ctx)?;
-                match (lhs.type_infer(ctx)?, &rhs) {
+            Op::Cast(val, typ) => {
+                let typ = typ.type_infer(ctx)?;
+                match (val.type_infer(ctx)?, &typ) {
                     (Type::Number | Type::Integer, Type::String) => {
-                        let numized = Expr::Operator(Box::new(Op::Cast(lhs.clone(), Type::Number)));
+                        let numized = Expr::Operator(Box::new(Op::Cast(val.clone(), Type::Number)));
                         Expr::Call("to_str".to_owned(), vec![numized]).compile(ctx)?
                     }
                     (Type::String, Type::Number | Type::Integer) => {
-                        let parse = Expr::Call("to_num".to_owned(), vec![lhs.clone()]);
-                        Op::Cast(parse, rhs).compile(ctx)?
+                        let parse = Expr::Call("to_num".to_owned(), vec![val.clone()]);
+                        Op::Cast(parse, typ).compile(ctx)?
                     }
                     (Type::Integer, Type::Number) => {
-                        format!("(f32.convert_i32_s {})", lhs.compile(ctx)?)
+                        format!("(f32.convert_i32_s {})", val.compile(ctx)?)
                     }
                     (Type::Number, Type::Integer) => {
-                        format!("(i32.trunc_f32_s {})", lhs.compile(ctx)?)
+                        format!("(i32.trunc_f32_s {})", val.compile(ctx)?)
                     }
-                    (lhs, rhs) if lhs == *rhs => lhs.compile(ctx)?,
+                    (lhs, rhs) if lhs == *rhs => val.compile(ctx)?,
                     _ => return None,
                 }
             }
