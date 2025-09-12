@@ -101,6 +101,7 @@ impl Node for Op {
     fn compile(&self, ctx: &mut Compiler) -> Option<String> {
         overload!(self, ctx, compile);
         Some(match self {
+            Op::Add(lhs, rhs) => compile_op!("add", ctx, lhs, rhs),
             Op::Sub(lhs, rhs) => compile_op!("sub", ctx, lhs, rhs),
             Op::Mul(lhs, rhs) => compile_op!("mul", ctx, lhs, rhs),
             Op::Div(lhs, rhs) => compile_op!("div_s", ctx, lhs, rhs),
@@ -117,7 +118,6 @@ impl Node for Op {
             Op::GtEq(lhs, rhs) => compile_op!("ge_s", ctx, lhs, rhs),
             Op::LAnd(lhs, rhs) => compile_op!("and", ctx, lhs, rhs),
             Op::LOr(lhs, rhs) => compile_op!("or", ctx, lhs, rhs),
-            Op::Add(lhs, rhs) => compile_op!("add", ctx, lhs, rhs),
             Op::Eql(lhs, rhs) => compile_op!("eq", ctx, lhs, rhs),
             Op::Mod(lhs, rhs) => {
                 let typ = lhs.type_infer(ctx)?.compile(ctx)?;
