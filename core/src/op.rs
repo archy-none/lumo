@@ -134,22 +134,23 @@ impl Node for Op {
             }
             Op::Cast(lhs, rhs) => {
                 let rhs = rhs.type_infer(ctx)?;
-                if let (Type::Number | Type::Integer, Type::String) = (lhs.type_infer(ctx)?, &rhs) {
-                    let numized = Expr::Operator(Box::new(Op::Cast(lhs.clone(), Type::Number)));
-                    Expr::Call("to_str".to_owned(), vec![numized]).compile(ctx)?
-                } else if let (Type::String, Type::Number | Type::Integer) =
-                    (lhs.type_infer(ctx)?, &rhs)
-                {
-                    let parse = Expr::Call("to_num".to_owned(), vec![lhs.clone()]);
-                    Op::Cast(parse, rhs).compile(ctx)?
-                } else if let (Type::Integer, Type::Number) = (lhs.type_infer(ctx)?, &rhs) {
-                    format!("(f32.convert_i32_s {})", lhs.compile(ctx)?,)
-                } else if let (Type::Number, Type::Integer) = (lhs.type_infer(ctx)?, &rhs) {
-                    format!("(i32.trunc_f32_s {})", lhs.compile(ctx)?,)
-                } else if lhs.type_infer(ctx)?.type_infer(ctx)? == rhs {
-                    lhs.compile(ctx)?
-                } else {
-                    return None;
+                match (lhs.type_infer(ctx)?, &rhs) {
+                    (Type::Number | Type::Integer, Type::String) => {
+                        let numized = Expr::Operator(Box::new(Op::Cast(lhs.clone(), Type::Number)));
+                        Expr::Call("to_str".to_owned(), vec![numized]).compile(ctx)?
+                    }
+                    (Type::String, Type::Number | Type::Integer) => {
+                        let parse = Expr::Call("to_num".to_owned(), vec![lhs.clone()]);
+                        Op::Cast(parse, rhs).compile(ctx)?
+                    }
+                    (Type::Integer, Type::Number) => {
+                        format!("(f32.convert_i32_s {})", lhs.compile(ctx)?)
+                    }
+                    (Type::Number, Type::Integer) => {
+                        format!("(i32.trunc_f32_s {})", lhs.compile(ctx)?)
+                    }
+                    (lhs, rhs) if lhs == *rhs => lhs.compile(ctx)?,
+                    _ => return None,
                 }
             }
             Op::Transmute(lhs, _) => lhs.compile(ctx)?,
