@@ -105,7 +105,7 @@ impl Node for Op {
             Op::Sub(lhs, rhs) => compile_op!("sub", ctx, lhs, rhs),
             Op::Mul(lhs, rhs) => compile_op!("mul", ctx, lhs, rhs),
             Op::Div(lhs, rhs) => compile_op!("div_s", ctx, lhs, rhs),
-            Op::Shr(lhs, rhs) => compile_op!("shr", ctx, lhs, rhs),
+            Op::Shr(lhs, rhs) => compile_op!("shr_s", ctx, lhs, rhs),
             Op::Shl(lhs, rhs) => compile_op!("shl", ctx, lhs, rhs),
             Op::BAnd(lhs, rhs) => compile_op!("and", ctx, lhs, rhs),
             Op::BOr(lhs, rhs) => compile_op!("or", ctx, lhs, rhs),
