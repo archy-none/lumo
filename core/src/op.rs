@@ -117,25 +117,8 @@ impl Node for Op {
             Op::GtEq(lhs, rhs) => compile_compare!("ge", ctx, lhs, rhs),
             Op::LAnd(lhs, rhs) => compile_arithmetic!("and", self, ctx, lhs, rhs),
             Op::LOr(lhs, rhs) => compile_arithmetic!("or", self, ctx, lhs, rhs),
-            Op::Add(lhs, rhs) => {
-                let typ = self.type_infer(ctx)?;
-                if let Type::String = typ {
-                    Expr::Call(String::from("concat"), vec![lhs.clone(), rhs.clone()])
-                        .compile(ctx)?
-                } else if let Type::Number | Type::Integer = typ {
-                    compile_arithmetic!("add", self, ctx, lhs, rhs)
-                } else {
-                    return None;
-                }
-            }
-            Op::Eql(lhs, rhs) => {
-                if let (Type::String, Type::String) = (lhs.type_infer(ctx)?, rhs.type_infer(ctx)?) {
-                    Expr::Call(String::from("strcmp"), vec![lhs.clone(), rhs.clone()])
-                        .compile(ctx)?
-                } else {
-                    compile_arithmetic!("eq", self, ctx, lhs, rhs)
-                }
-            }
+            Op::Add(lhs, rhs) => compile_arithmetic!("add", self, ctx, lhs, rhs),
+            Op::Eql(lhs, rhs) => compile_arithmetic!("eq", self, ctx, lhs, rhs),
             Op::Mod(lhs, rhs) => {
                 let typ = lhs.type_infer(ctx)?.compile(ctx)?;
                 let (lhs, rhs) = (lhs.compile(ctx)?, rhs.compile(ctx)?);
@@ -153,12 +136,12 @@ impl Node for Op {
                 let rhs = rhs.type_infer(ctx)?;
                 if let (Type::Number | Type::Integer, Type::String) = (lhs.type_infer(ctx)?, &rhs) {
                     let numized = Expr::Operator(Box::new(Op::Cast(lhs.clone(), Type::Number)));
-                    Expr::Call(String::from("to_str"), vec![numized]).compile(ctx)?
+                    Expr::Call("to_str".to_owned(), vec![numized]).compile(ctx)?
                 } else if let (Type::String, Type::Number | Type::Integer) =
                     (lhs.type_infer(ctx)?, &rhs)
                 {
-                    Op::Cast(Expr::Call(String::from("to_num"), vec![lhs.clone()]), rhs)
-                        .compile(ctx)?
+                    let parse = Expr::Call("to_num".to_owned(), vec![lhs.clone()]);
+                    Op::Cast(parse, rhs).compile(ctx)?
                 } else if let (Type::Integer, Type::Number) = (lhs.type_infer(ctx)?, &rhs) {
                     format!("(f32.convert_i32_s {})", lhs.compile(ctx)?,)
                 } else if let (Type::Number, Type::Integer) = (lhs.type_infer(ctx)?, &rhs) {
