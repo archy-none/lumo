@@ -203,7 +203,7 @@ impl Node for Stmt {
                         ),
                         ret = compile_return!(function.returns, ctx),
                         pub = if let Scope::Global = scope { format!("(export \"{name}\")") } else { String::new() },
-                        body = value.compile(ctx)?, locals = expand_local(ctx)?
+                        body = value.compile(ctx)?, locals = expand_local!(ctx)
                     );
                     ctx.declare.push(code);
                     ctx.variable = var_ctx;
@@ -251,7 +251,7 @@ impl Node for Stmt {
                     arguments: args.into_iter().collect(),
                     returns: ret_typ.clone(),
                 };
-                let sig = compile_args_type!(function, ctx);
+                let sig = compile_args!(function, ctx);
                 let ret = compile_return!(ret_typ, ctx);
                 ctx.import.push(format!(
                     "(import \"env\" \"{export}\" (func ${name} {sig} {ret}))"
@@ -351,7 +351,7 @@ impl Node for Stmt {
                             let arg_ctx = ctx.argument.clone();
                             ctx.variable.clear();
                             ctx.argument.clear();
-                            compile_args!(args.clone(), ctx);
+                            compile_function!(args.clone(), ctx);
                             ctx.function.insert(
                                 name.to_owned(),
                                 Function {
