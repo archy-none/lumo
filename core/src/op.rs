@@ -101,24 +101,24 @@ impl Node for Op {
     fn compile(&self, ctx: &mut Compiler) -> Option<String> {
         overload!(self, ctx, compile);
         Some(match self {
-            Op::Sub(lhs, rhs) => compile_arithmetic!("sub", self, ctx, lhs, rhs),
-            Op::Mul(lhs, rhs) => compile_arithmetic!("mul", self, ctx, lhs, rhs),
-            Op::Div(lhs, rhs) => compile_compare!("div", ctx, lhs, rhs),
-            Op::Shr(lhs, rhs) => compile_compare!("shr", ctx, lhs, rhs),
-            Op::Shl(lhs, rhs) => compile_arithmetic!("shl", self, ctx, lhs, rhs),
-            Op::BAnd(lhs, rhs) => compile_arithmetic!("and", self, ctx, lhs, rhs),
-            Op::BOr(lhs, rhs) => compile_arithmetic!("or", self, ctx, lhs, rhs),
-            Op::XOr(lhs, rhs) => compile_arithmetic!("xor", self, ctx, lhs, rhs),
-            Op::LNot(lhs) => compile_compare!("eqz", ctx, lhs),
-            Op::Neq(lhs, rhs) => compile_arithmetic!("ne", self, ctx, lhs, rhs),
-            Op::Lt(lhs, rhs) => compile_compare!("lt", ctx, lhs, rhs),
-            Op::Gt(lhs, rhs) => compile_compare!("gt", ctx, lhs, rhs),
-            Op::LtEq(lhs, rhs) => compile_compare!("le", ctx, lhs, rhs),
-            Op::GtEq(lhs, rhs) => compile_compare!("ge", ctx, lhs, rhs),
-            Op::LAnd(lhs, rhs) => compile_arithmetic!("and", self, ctx, lhs, rhs),
-            Op::LOr(lhs, rhs) => compile_arithmetic!("or", self, ctx, lhs, rhs),
-            Op::Add(lhs, rhs) => compile_arithmetic!("add", self, ctx, lhs, rhs),
-            Op::Eql(lhs, rhs) => compile_arithmetic!("eq", self, ctx, lhs, rhs),
+            Op::Sub(lhs, rhs) => compile_op!("sub", ctx, lhs, rhs),
+            Op::Mul(lhs, rhs) => compile_op!("mul", ctx, lhs, rhs),
+            Op::Div(lhs, rhs) => compile_op!("div_s", ctx, lhs, rhs),
+            Op::Shr(lhs, rhs) => compile_op!("shr_s", ctx, lhs, rhs),
+            Op::Shl(lhs, rhs) => compile_op!("shl", ctx, lhs, rhs),
+            Op::BAnd(lhs, rhs) => compile_op!("and", ctx, lhs, rhs),
+            Op::BOr(lhs, rhs) => compile_op!("or", ctx, lhs, rhs),
+            Op::XOr(lhs, rhs) => compile_op!("xor", ctx, lhs, rhs),
+            Op::LNot(term) => compile_op!("eqz", ctx, term),
+            Op::Neq(lhs, rhs) => compile_op!("ne", ctx, lhs, rhs),
+            Op::Lt(lhs, rhs) => compile_op!("lt_s", ctx, lhs, rhs),
+            Op::Gt(lhs, rhs) => compile_op!("gt_s", ctx, lhs, rhs),
+            Op::LtEq(lhs, rhs) => compile_op!("le_s", ctx, lhs, rhs),
+            Op::GtEq(lhs, rhs) => compile_op!("ge_s", ctx, lhs, rhs),
+            Op::LAnd(lhs, rhs) => compile_op!("and", ctx, lhs, rhs),
+            Op::LOr(lhs, rhs) => compile_op!("or", ctx, lhs, rhs),
+            Op::Add(lhs, rhs) => compile_op!("add", ctx, lhs, rhs),
+            Op::Eql(lhs, rhs) => compile_op!("eq", ctx, lhs, rhs),
             Op::Mod(lhs, rhs) => {
                 let typ = lhs.type_infer(ctx)?.compile(ctx)?;
                 let (lhs, rhs) = (lhs.compile(ctx)?, rhs.compile(ctx)?);
@@ -130,7 +130,7 @@ impl Node for Op {
             }
             Op::BNot(lhs) => {
                 let minus_one = Expr::Literal(Value::Integer(-1));
-                compile_arithmetic!("xor", self, ctx, lhs, minus_one)
+                compile_op!("xor", ctx, lhs, minus_one)
             }
             Op::Cast(lhs, rhs) => {
                 let rhs = rhs.type_infer(ctx)?;
