@@ -27,7 +27,7 @@ macro_rules! expand_local {
 #[macro_export]
 macro_rules! expand_global {
     ($ctx: expr) => {
-        Some(join!(
+        join!(
             $ctx.global
                 .clone()
                 .iter()
@@ -38,7 +38,7 @@ macro_rules! expand_global {
                     ))
                 })
                 .collect::<Option<Vec<String>>>()?
-        ))
+        )
     };
 }
 
@@ -71,6 +71,24 @@ macro_rules! type_check {
 }
 
 #[macro_export]
+macro_rules! correct {
+    ($lhs: expr, $rhs: expr , $ctx: expr, $pat: pat) => {{
+        let ret = type_check!($lhs, $rhs, $ctx)?;
+        if let $pat = ret {
+            Some(ret)
+        } else {
+            let msg = format!(
+                "can't mathematical operation between {} and {}",
+                $lhs.type_infer($ctx)?.format(),
+                $rhs.type_infer($ctx)?.format()
+            );
+            $ctx.error = Some(msg);
+            None
+        }
+    }};
+}
+
+#[macro_export]
 macro_rules! compile_return {
     ($ret: expr, $ctx: expr) => {{
         let ret = $ret.type_infer($ctx)?;
@@ -83,7 +101,7 @@ macro_rules! compile_return {
 }
 
 #[macro_export]
-macro_rules! compile_args_type {
+macro_rules! compile_args {
     ($function: expr, $ctx: expr) => {
         format!(
             "(param {})",
@@ -113,7 +131,7 @@ macro_rules! compile_arithmetic {
 }
 
 #[macro_export]
-macro_rules! compile_args {
+macro_rules! compile_function {
     ($args: expr, $ctx: expr) => {
         for arg in $args {
             let Expr::Operator(oper) = arg else {
@@ -199,24 +217,6 @@ macro_rules! import_args {
             args_typ.push((arg_name, arg_typ));
         }
         (name, args_typ, ret_typ)
-    }};
-}
-
-#[macro_export]
-macro_rules! correct {
-    ($lhs: expr, $rhs: expr , $ctx: expr, $pat: pat) => {{
-        let ret = type_check!($lhs, $rhs, $ctx)?;
-        if let $pat = ret {
-            Some(ret)
-        } else {
-            let msg = format!(
-                "can't mathematical operation between {} and {}",
-                $lhs.type_infer($ctx)?.format(),
-                $rhs.type_infer($ctx)?.format()
-            );
-            $ctx.error = Some(msg);
-            None
-        }
     }};
 }
 
