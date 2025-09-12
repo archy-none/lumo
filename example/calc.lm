@@ -10,6 +10,9 @@ load to_str(a: num): str;
 load to_num(a: str): int;
 load os.argv(): [str];
 
+overload strcmp = str == str;
+overload concat = str + str;
+
 type Kind = ( Add | Sub | Mul | Div | LiteralInt );
 type Expr = @{
     kind: Kind,
