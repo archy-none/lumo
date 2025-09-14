@@ -91,12 +91,12 @@ impl Node for Expr {
             Some(Expr::Field(Box::new(Expr::parse(dict)?), field.to_owned()))
         // Enumerate access `( a | b )#a`
         } else if source.contains("#") {
-            let (typ, enum_) = source.rsplit_once("#")?;
-            if !is_identifier(&enum_) {
+            let (typ, key) = source.rsplit_once("#")?;
+            if !is_identifier(&key) {
                 return None;
             };
-            let enum_ = Value::Enum(Type::parse(typ)?, enum_.to_owned());
-            Some(Expr::Literal(enum_))
+            let key = Value::Enum(Type::parse(typ)?, key.to_owned());
+            Some(Expr::Literal(key))
         // Variable reference
         } else if is_identifier(token) {
             Some(Expr::Variable(token.to_string()))
