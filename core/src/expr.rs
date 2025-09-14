@@ -160,20 +160,19 @@ impl Node for Expr {
                 Expr::Peek(Box::new(addr), inner_typ).compile(ctx)?
             }
             Expr::Block(block) => block.compile(ctx)?,
-            Expr::Clone(from) => {
-                let size = from.object_size(ctx)?.compile(ctx)?;
-                format!(
-                    "(memory.copy (global.get $allocator) {object} {size}) (call $malloc {size})",
-                    object = from.compile(ctx)?,
-                )
-            }
+            Expr::Clone(from) => format!(
+                "(memory.copy (global.get $allocator) {object} {size}) (call $malloc {size})",
+                size = from.object_size(ctx)?.compile(ctx)?,
+                object = from.compile(ctx)?
+            ),
             Expr::Peek(expr, typ) => {
-                format!("({}.load {})", typ.compile(ctx)?, expr.compile(ctx)?)
+                let [typ, addr] = [typ.compile(ctx)?, expr.compile(ctx)?];
+                format!("({typ}.load {addr})")
             }
             Expr::Poke(addr, expr) => {
                 let typ = expr.type_infer(ctx)?;
-                let [addr, code] = [addr.compile(ctx)?, expr.compile(ctx)?];
-                format!("({}.store {addr} {code})", typ.compile(ctx)?)
+                let [typ, addr, code] = [typ.compile(ctx)?, addr.compile(ctx)?, expr.compile(ctx)?];
+                format!("({typ}.store {addr} {code})")
             }
         })
     }
