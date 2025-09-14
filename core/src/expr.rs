@@ -66,8 +66,7 @@ impl Node for Expr {
         } else if token.contains("(") && token.ends_with(")") {
             let token = tokenize(token, &["("], false, true, true)?;
             let args = token.last()?.get(1..token.last()?.len() - 1)?;
-            let args = tokenize(args, &[","], false, true, false)?;
-            let args = args
+            let args = tokenize(args, &[","], false, true, false)?
                 .iter()
                 .map(|i| Expr::parse(&i))
                 .collect::<Option<Vec<_>>>()?;
