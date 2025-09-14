@@ -285,14 +285,7 @@ impl Node for Stmt {
                 ctx.in_while = in_while;
                 Type::Void
             }
-            Stmt::Break => {
-                if !ctx.in_while {
-                    ctx.error = Some("break statement outside of loop".to_string());
-                    return None;
-                }
-                Type::Void
-            }
-            Stmt::Next => {
+            Stmt::Break | Stmt::Next => {
                 if !ctx.in_while {
                     ctx.error = Some("next statement outside of loop".to_string());
                     return None;
@@ -377,8 +370,8 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Macro(name, args, expr) => {
-                ctx.r#macro
-                    .insert(name.to_owned(), (args.clone(), expr.clone()));
+                let value = (args.clone(), expr.clone());
+                ctx.r#macro.insert(name.to_owned(), value);
                 Type::Void
             }
             Stmt::Try(expr, catch) => expr.type_infer(ctx).or(catch.type_infer(ctx))?,
