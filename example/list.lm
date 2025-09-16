@@ -34,4 +34,4 @@ let from_array(values: [int]) = {
 
 let a = node(100);
 let b = [1, 2, 3]: LinkList;
-a.append(b) + a.clone()
+a.clone().append(b) + a
