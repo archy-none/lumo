@@ -165,7 +165,7 @@ pub fn str_format(input: &str) -> Option<Vec<String>> {
     Some(tokens)
 }
 
-pub fn is_identifier(name: &mut &str) -> bool {
+pub fn is_identifier(name: &mut String) -> bool {
     if name.is_empty() {
         return false;
     }
@@ -177,11 +177,12 @@ pub fn is_identifier(name: &mut &str) -> bool {
     if !chars.all(UnicodeXID::is_xid_continue) {
         return false;
     }
-    if RESERVED.contains(&name) {
+    if RESERVED.contains(&name.as_str()) {
         return false;
     }
     if !name.is_ascii() {
         return false;
     }
+    *name = name.replace("::", "__");
     true
 }
