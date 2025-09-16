@@ -260,6 +260,7 @@ impl Op {
             ("^".to_owned(), 17),
             ("&&".to_owned(), 18),
             ("||".to_owned(), 19),
+            (":".to_owned(), 20),
         ])
     }
 
@@ -283,6 +284,7 @@ impl Op {
             Op::XOr(_, _) => 17,
             Op::LAnd(_, _) => 18,
             Op::LOr(_, _) => 19,
+            Op::Cast(_, _) => 20,
             _ => return None,
         })
     }
