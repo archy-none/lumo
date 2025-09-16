@@ -24,7 +24,7 @@ impl Node for Type {
             "str" => Some(Type::String),
             "void" => Some(Type::Void),
             source => {
-                let mut source = source.trim();
+                let mut source = source.trim().to_owned();
                 if source.starts_with("[") && source.ends_with("]") {
                     let source = source.get(1..source.len() - 1)?.trim();
                     Some(Type::Array(Box::new(Type::parse(source)?)))
@@ -33,11 +33,11 @@ impl Node for Type {
                     let mut result = IndexMap::new();
                     for line in tokenize(source, &[","], false, true, false)? {
                         let (name, value) = line.split_once(":")?;
-                        let mut name = name.trim();
+                        let mut name = name.trim().to_owned();
                         if !is_identifier(&mut name) {
                             return None;
                         };
-                        result.insert(name.to_owned(), Type::parse(value)?);
+                        result.insert(name, Type::parse(value)?);
                     }
                     Some(Type::Dict(result))
                 } else if source.starts_with("(") && source.ends_with(")") {
@@ -45,11 +45,11 @@ impl Node for Type {
                     let tokens = tokenize(source, &["|"], false, true, false)?;
                     let mut result: IndexSet<String> = IndexSet::new();
                     for key in tokens {
-                        let mut value = key.trim();
+                        let mut value = key.trim().to_owned();
                         if !is_identifier(&mut value) {
                             return None;
                         };
-                        result.insert(value.to_owned());
+                        result.insert(value);
                     }
                     Some(Type::Enum(result))
                 } else if is_identifier(&mut source) {
