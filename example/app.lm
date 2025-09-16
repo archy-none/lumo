@@ -7,6 +7,7 @@ load to_str(n: num): str;
 load to_num(s: str): num;
 
 overload concat = str + str;
+pub let render = "innerHTML";
 
 let is_prime(n: int) = {
     if n < 2 then false
@@ -28,7 +29,7 @@ let frame = {
     let frame = "div".new_elm(-1);
     frame.upd_elm("style", "margin: 100px");
     let title = new_elm("h1", frame);
-    title.upd_elm("innerHTML", "Prime App");
+    title.upd_elm(render, "Prime App");
     frame
 };
 
@@ -37,7 +38,7 @@ pub let view = "p".new_elm(frame);
 
 let button = {
     let button = "button".new_elm(frame);
-    button.upd_elm("innerHTML", "Judge");
+    button.upd_elm(render, "Judge");
     button.evt_elm("click", "judge");
     button
 };
@@ -49,5 +50,5 @@ pub let judge() = {
             then "prime"
             else "dividable"
     };
-    view.upd_elm("innerHTML", f"Result: {value} is {result} number")
+    view.upd_elm(render, f"Result: {value} is {result} number")
 }
