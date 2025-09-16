@@ -169,6 +169,7 @@ pub fn is_identifier(name: &mut String) -> bool {
     if name.is_empty() {
         return false;
     }
+    *name = name.replace("::", "__");
     let mut chars = name.chars();
     let first_char = chars.next().unwrap();
     if !UnicodeXID::is_xid_start(first_char) {
@@ -183,6 +184,5 @@ pub fn is_identifier(name: &mut String) -> bool {
     if !name.is_ascii() {
         return false;
     }
-    *name = name.replace("::", "__");
     true
 }
