@@ -98,11 +98,13 @@ impl Node for Stmt {
             let Expr::Call(name, args) = Expr::parse(head)? else {
                 return None;
             };
-            let func = |x: &Expr| {
-                let Expr::Variable(x) = x else { return None };
-                Some(x.clone())
-            };
-            let args = args.iter().map(func).collect::<Option<Vec<_>>>()?;
+            let args = args
+                .iter()
+                .map(|x| {
+                    let Expr::Variable(x) = x else { return None };
+                    Some(x.clone())
+                })
+                .collect::<Option<Vec<_>>>()?;
             Some(Stmt::Macro(name, args, Expr::parse(value)?))
         } else if let Some(source) = source.strip_prefix("overload ") {
             let (name, value) = source.split_once("=")?;
