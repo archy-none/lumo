@@ -16,7 +16,7 @@ pub enum Expr {
 
 impl Node for Expr {
     fn parse(source: &str) -> Option<Expr> {
-        let token = source.trim();
+        let mut token = source.trim();
         // Operator
         if let Some(literal) = Op::parse(&token) {
             Some(Expr::Operator(Box::new(literal)))
@@ -84,21 +84,21 @@ impl Node for Expr {
         // Dictionary access `dict.field`
         } else if token.contains(".") {
             let (dict, field) = token.rsplit_once(".")?;
-            let field = field.trim();
-            if !is_identifier(field) {
+            let mut field = field.trim();
+            if !is_identifier(&mut field) {
                 return None;
             };
             Some(Expr::Field(Box::new(Expr::parse(dict)?), field.to_owned()))
         // Enumerate access `( a | b )#a`
         } else if source.contains("#") {
-            let (typ, key) = source.rsplit_once("#")?;
-            if !is_identifier(&key) {
+            let (typ, mut key) = source.rsplit_once("#")?;
+            if !is_identifier(&mut key) {
                 return None;
             };
             let key = Value::Enum(Type::parse(typ)?, key.to_owned());
             Some(Expr::Literal(key))
         // Variable reference
-        } else if is_identifier(token) {
+        } else if is_identifier(&mut token) {
             Some(Expr::Variable(token.to_string()))
         } else {
             None
