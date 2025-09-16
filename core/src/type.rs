@@ -24,7 +24,7 @@ impl Node for Type {
             "str" => Some(Type::String),
             "void" => Some(Type::Void),
             source => {
-                let source = source.trim();
+                let mut source = source.trim();
                 if source.starts_with("[") && source.ends_with("]") {
                     let source = source.get(1..source.len() - 1)?.trim();
                     Some(Type::Array(Box::new(Type::parse(source)?)))
@@ -33,23 +33,26 @@ impl Node for Type {
                     let mut result = IndexMap::new();
                     for line in tokenize(source, &[","], false, true, false)? {
                         let (name, value) = line.split_once(":")?;
-                        let name = name.trim().to_string();
-                        if !is_identifier(&name) {
+                        let mut name = name.trim();
+                        if !is_identifier(&mut name) {
                             return None;
                         };
-                        result.insert(name, Type::parse(value)?);
+                        result.insert(name.to_owned(), Type::parse(value)?);
                     }
                     Some(Type::Dict(result))
                 } else if source.starts_with("(") && source.ends_with(")") {
                     let source = source.get(1..source.len() - 1)?.trim();
-                    let result = tokenize(source, &["|"], false, true, false)?;
-                    let result: IndexSet<String> =
-                        result.iter().map(|x| x.trim().to_string()).collect();
-                    if !result.iter().all(|x| is_identifier(x)) {
-                        return None;
-                    };
+                    let tokens = tokenize(source, &["|"], false, true, false)?;
+                    let mut result: IndexSet<String> = IndexSet::new();
+                    for key in tokens {
+                        let mut value = key.trim();
+                        if !is_identifier(&mut value) {
+                            return None;
+                        };
+                        result.insert(value.to_owned());
+                    }
                     Some(Type::Enum(result))
-                } else if is_identifier(&source) {
+                } else if is_identifier(&mut source) {
                     Some(Type::Alias(source.to_string()))
                 } else {
                     None
