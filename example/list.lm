@@ -6,7 +6,7 @@ overload append = LinkList + LinkList;
 overload from_array = [int]: LinkList;
 
 let node(value: int) = memcpy(@{ car: value, cdr: LinkList! });
-let append(self: LinkList, other: LinkList) = {
+let LinkList::append(self: LinkList, other: LinkList) = {
     let current = self;
     while current.cdr? loop {
         let current = current.cdr
@@ -14,14 +14,14 @@ let append(self: LinkList, other: LinkList) = {
     let current.cdr = other;
     self
 };
-let clone(self: LinkList) = {
+let LinkList::clone(self: LinkList) = {
     let object = self.memcpy();
     if object.cdr? then {
         let object.cdr = clone(self.cdr)
     };
     object
 };
-let from_array(values: [int]) = {
+let LinkList::from_array(values: [int]) = {
     let list = node(values[0]);
     let length = values.arrlen();
     let index = 1;
