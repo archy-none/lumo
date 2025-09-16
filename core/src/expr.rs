@@ -117,7 +117,7 @@ impl Node for Expr {
             Expr::Literal(literal) => literal.compile(ctx)?,
             Expr::Call(name, args) => {
                 let class = &args.first()?.type_infer(ctx)?.format();
-                let name_with_class = format!("{class}__{name}",);
+                let name_with_class = format!("{class}__{name}");
                 let mut caller = |name| {
                     if ctx.function.contains_key(name) || ctx.export.contains_key(name) {
                         let args = args
@@ -210,28 +210,34 @@ impl Node for Expr {
                         }
                     };
                 }
-                if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned() {
-                    arglen_check!(function.arguments, "function");
-                    let func = |(arg, typ): (&Expr, &Type)| type_check!(arg, typ, ctx);
-                    let ziped = args.iter().zip(function.arguments.values());
-                    ziped.map(func).collect::<Option<Vec<_>>>()?;
-                    function.returns.type_infer(ctx)?
-                } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
-                    arglen_check!(params, "macro");
-                    let var_ctx = ctx.variable.clone();
-                    for (params, arg) in params.iter().zip(args) {
-                        let typ = arg.type_infer(ctx)?;
-                        ctx.variable.insert(params.to_owned(), typ);
+                let class = &args.first()?.type_infer(ctx)?.format();
+                let name_with_class = format!("{class}__{name}");
+                let mut caller = |name| {
+                    if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned()
+                    {
+                        arglen_check!(function.arguments, "function");
+                        let func = |(arg, typ): (&Expr, &Type)| type_check!(arg, typ, ctx);
+                        let ziped = args.iter().zip(function.arguments.values());
+                        ziped.map(func).collect::<Option<Vec<_>>>()?;
+                        Some(function.returns.type_infer(ctx)?)
+                    } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
+                        arglen_check!(params, "macro");
+                        let var_ctx = ctx.variable.clone();
+                        for (params, arg) in params.iter().zip(args) {
+                            let typ = arg.type_infer(ctx)?;
+                            ctx.variable.insert(params.to_owned(), typ);
+                        }
+                        let typ = expr.type_infer(ctx)?;
+                        ctx.variable = var_ctx;
+                        Some(typ)
+                    } else {
+                        ctx.error = Some(format!(
+                            "function or macro `{name}` you want to call is not defined"
+                        ));
+                        return None;
                     }
-                    let typ = expr.type_infer(ctx)?;
-                    ctx.variable = var_ctx;
-                    typ
-                } else {
-                    ctx.error = Some(format!(
-                        "function or macro `{name}` you want to call is not defined"
-                    ));
-                    return None;
-                }
+                };
+                caller(name).or(caller(&name_with_class))?
             }
             Expr::Index(arr, _) => {
                 let infered = arr.type_infer(ctx)?;
