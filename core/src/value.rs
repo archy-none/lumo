@@ -38,11 +38,11 @@ impl Node for Value {
             let mut result = IndexMap::new();
             for line in tokenize(token, &[","], false, true, false)? {
                 let (name, value) = line.trim().split_once(":")?;
-                let name = name.trim().to_string();
-                if !is_identifier(&name) {
+                let mut name = name.trim();
+                if !is_identifier(&mut name) {
                     return None;
                 };
-                result.insert(name, Expr::parse(value)?);
+                result.insert(name.to_owned(), Expr::parse(value)?);
             }
             Some(Value::Dict(result))
         } else {
