@@ -16,7 +16,7 @@ pub enum Expr {
 
 impl Node for Expr {
     fn parse(source: &str) -> Option<Expr> {
-        let mut token = source.trim();
+        let mut token = source.trim().to_owned();
         // Operator
         if let Some(literal) = Op::parse(&token) {
             Some(Expr::Operator(Box::new(literal)))
@@ -58,13 +58,13 @@ impl Node for Expr {
             Some(Expr::Block(Block::parse(token)?))
         // Index access `array[index]`
         } else if token.contains("[") && token.ends_with("]") {
-            let token = tokenize(token, &["["], false, true, true)?;
+            let token = tokenize(&token, &["["], false, true, true)?;
             let array = Expr::parse(&token.get(..token.len() - 1)?.concat())?;
             let index = token.last()?.get(1..token.last()?.len() - 1)?;
             Some(Expr::Index(Box::new(array), Box::new(Expr::parse(index)?)))
         // Function call `name(args, ...)`
         } else if token.contains("(") && token.ends_with(")") {
-            let token = tokenize(token, &["("], false, true, true)?;
+            let token = tokenize(&token, &["("], false, true, true)?;
             let args = token.last()?.get(1..token.last()?.len() - 1)?;
             let args = tokenize(args, &[","], false, true, false)?
                 .iter()
@@ -84,14 +84,15 @@ impl Node for Expr {
         // Dictionary access `dict.field`
         } else if token.contains(".") {
             let (dict, field) = token.rsplit_once(".")?;
-            let mut field = field.trim();
+            let mut field = field.trim().to_owned();
             if !is_identifier(&mut field) {
                 return None;
             };
             Some(Expr::Field(Box::new(Expr::parse(dict)?), field.to_owned()))
         // Enumerate access `( a | b )#a`
         } else if source.contains("#") {
-            let (typ, mut key) = source.rsplit_once("#")?;
+            let (typ, key) = source.rsplit_once("#")?;
+            let mut key = key.trim().to_owned();
             if !is_identifier(&mut key) {
                 return None;
             };
