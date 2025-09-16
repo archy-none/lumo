@@ -21,7 +21,7 @@ let LinkList::clone(self: LinkList) = {
     };
     object
 };
-let LinkList::from_array(values: [int]) = {
+let from_array(values: [int]) = {
     let list = node(values[0]);
     let length = values.arrlen();
     let index = 1;
