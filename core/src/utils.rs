@@ -164,18 +164,22 @@ macro_rules! address_calc {
 macro_rules! overload {
     ($self: expr, $ctx: expr, $method: ident) => {{
         let mut overload = || {
-            let (lhs, rhs) = $self.binop_term()?;
-            let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx).format();
-            let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx).format();
-            let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
-            if let Some(func) = $ctx.overload.get(&key) {
-                return Expr::Call(func.to_string(), vec![lhs, rhs]).$method($ctx);
+            if let Some((lhs, rhs)) = $self.binop_term() {
+                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx).format();
+                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx).format();
+                let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
+                Some(Expr::Call($ctx.overload.get(&key)?.to_string(), vec![lhs, rhs]).$method($ctx))
+            } else if let Op::Cast(lhs, rhs) = $self.clone() {
+                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx).format();
+                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx).format();
+                let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
+                Some(Expr::Call($ctx.overload.get(&key)?.to_string(), vec![lhs]).$method($ctx))
             } else {
                 None
             }
         };
         if let Some(overloaded) = overload() {
-            return Some(overloaded);
+            return overloaded;
         }
     }};
 }
