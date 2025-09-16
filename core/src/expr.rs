@@ -145,7 +145,10 @@ impl Node for Expr {
                         return None;
                     }
                 };
-                caller(name).or(caller(&name_with_class))?
+                if let Some(result) = caller(&name_with_class) {
+                    return Some(result);
+                }
+                caller(name)?
             }
             Expr::Index(array, index) => {
                 let typ = array.type_infer(ctx)?;
@@ -237,7 +240,10 @@ impl Node for Expr {
                         return None;
                     }
                 };
-                caller(name).or(caller(&name_with_class))?
+                if let Some(result) = caller(&name_with_class) {
+                    return Some(result);
+                }
+                caller(&name)?
             }
             Expr::Index(arr, _) => {
                 let infered = arr.type_infer(ctx)?;
