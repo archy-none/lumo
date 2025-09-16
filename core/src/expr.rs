@@ -116,31 +116,36 @@ impl Node for Expr {
             }
             Expr::Literal(literal) => literal.compile(ctx)?,
             Expr::Call(name, args) => {
-                if ctx.function.contains_key(name) || ctx.export.contains_key(name) {
-                    let args = args
-                        .iter()
-                        .map(|x| x.compile(ctx))
-                        .collect::<Option<Vec<_>>>()?;
-                    format!("(call ${name} {})", join!(args))
-                } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
-                    let mut old_types = IndexMap::new();
-                    for (param, arg) in params.iter().zip(args) {
-                        let typ = arg.type_infer(ctx)?;
-                        if let Some(original_var) = ctx.variable.get(param).cloned() {
-                            old_types.insert(param.to_owned(), original_var);
+                let class = &args.first()?.type_infer(ctx)?.format();
+                let name_with_class = format!("{class}__{name}",);
+                let mut caller = |name| {
+                    if ctx.function.contains_key(name) || ctx.export.contains_key(name) {
+                        let args = args
+                            .iter()
+                            .map(|x| x.compile(ctx))
+                            .collect::<Option<Vec<_>>>()?;
+                        Some(format!("(call ${name} {})", join!(args)))
+                    } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
+                        let mut old_types = IndexMap::new();
+                        for (param, arg) in params.iter().zip(args) {
+                            let typ = arg.type_infer(ctx)?;
+                            if let Some(original_var) = ctx.variable.get(param).cloned() {
+                                old_types.insert(param.to_owned(), original_var);
+                            }
+                            ctx.variable.insert(param.to_owned(), typ);
                         }
-                        ctx.variable.insert(param.to_owned(), typ);
+                        let mut body = expr.compile(ctx)?;
+                        for (param, arg) in params.iter().zip(args) {
+                            let var = Expr::Variable(param.to_owned()).compile(ctx)?;
+                            body = body.replace(&var, &arg.compile(ctx)?);
+                        }
+                        ctx.variable.extend(old_types);
+                        Some(body)
+                    } else {
+                        return None;
                     }
-                    let mut body = expr.compile(ctx)?;
-                    for (param, arg) in params.iter().zip(args) {
-                        let var = Expr::Variable(param.to_owned()).compile(ctx)?;
-                        body = body.replace(&var, &arg.compile(ctx)?);
-                    }
-                    ctx.variable.extend(old_types);
-                    body
-                } else {
-                    return None;
-                }
+                };
+                caller(name).or(caller(&name_with_class))?
             }
             Expr::Index(array, index) => {
                 let typ = array.type_infer(ctx)?;
