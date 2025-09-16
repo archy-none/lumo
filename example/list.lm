@@ -1,4 +1,9 @@
+load arrlen(data: [int]): int;
+
 type LinkList = @{ car: int, cdr: LinkList };
+
+overload append = LinkList + LinkList;
+overload from_array = [int]: LinkList;
 
 let node(value: int) = memcpy(@{ car: value, cdr: LinkList! });
 let append(self: LinkList, other: LinkList) = {
@@ -16,9 +21,17 @@ let clone(self: LinkList) = {
     };
     object
 };
+let from_array(values: [int]) = {
+    let list = node(values[0]);
+    let length = values.arrlen();
+    let index = 1;
+    while index < length loop {
+        let list + node(values[index]);
+        let index + 1
+    };
+    list
+};
 
-overload append = LinkList + LinkList;
-
-let a = node(1);
-let b = node(2).append(node(3));
-a + b + b.clone()
+let a = node(100);
+let b = [1, 2, 3]: LinkList;
+a.append(b) + a.clone()
