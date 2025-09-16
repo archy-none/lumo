@@ -116,7 +116,7 @@ impl Node for Expr {
             }
             Expr::Literal(literal) => literal.compile(ctx)?,
             Expr::Call(name, args) => {
-                let class = &args.first()?.type_infer(ctx)?.format();
+                let class = &args.first()?.type_infer(ctx)?.compress_alias(ctx).format();
                 let name_with_class = format!("{class}__{name}");
                 let mut caller = |name| {
                     if ctx.function.contains_key(name) || ctx.export.contains_key(name) {
@@ -210,7 +210,7 @@ impl Node for Expr {
                         }
                     };
                 }
-                let class = &args.first()?.type_infer(ctx)?.format();
+                let class = &args.first()?.type_infer(ctx)?.compress_alias(ctx).format();
                 let name_with_class = format!("{class}__{name}");
                 let mut caller = |name| {
                     if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned()
