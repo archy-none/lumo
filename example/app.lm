@@ -1,7 +1,7 @@
-load new_elm(tag: str, parent: int): int;
-load upd_elm(id: int, prp: str, content: str): void;
-load evt_elm(id: int, name: str, func: str): void;
-load prp_elm(id: int, prp: str): str;
+load Elm@new(tag: str, parent: int): int;
+load Elm@update(id: int, prp: str, content: str): void;
+load Elm@event(id: int, name: str, func: str): void;
+load Elm@get(id: int, prp: str): str;
 load concat(a: str, b: str): str;
 load to_str(n: num): str;
 load to_num(s: str): num;
