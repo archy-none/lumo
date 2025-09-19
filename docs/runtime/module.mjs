@@ -26,9 +26,7 @@ export function module({
         }
         const bridge = instanceObj.bridge();
         if (!(fnName in bridge)) {
-            throw new Error(
-                `Function ${fnName} not found in module ${modName}`,
-            );
+            throw `function ${fnName} not found in module ${modName}`;
         }
         importObject.env[key] = bridge[fnName];
         instances[modName] = instanceObj;
