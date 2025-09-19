@@ -160,7 +160,7 @@ impl Type {
 
     pub fn polymorphism(&self, ctx: &mut Compiler) -> Option<Type> {
         match self {
-            Type::Any => ctx.type_alias.get(&Type::Any.format()).cloned(),
+            Type::Any => ctx.type_alias.swap_remove(&Type::Any.format()),
             Type::Dict(dict) => Some(Type::Dict(
                 dict.iter()
                     .map(|(key, typ)| Some((key.clone(), typ.polymorphism(ctx)?)))
