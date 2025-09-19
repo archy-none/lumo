@@ -116,7 +116,6 @@ impl Type {
     }
 
     pub fn compress_alias(&self, ctx: &Compiler) -> Type {
-        let mut aliases = ctx.type_alias.iter();
         let typ = match self {
             Type::Array(typ) => Type::Array(Box::new(typ.compress_alias(ctx))),
             Type::Dict(dict) => Type::Dict(
@@ -126,8 +125,9 @@ impl Type {
             ),
             _ => self.clone(),
         };
-        if let Some(i) = aliases.find(|(_, v)| **v == typ) {
-            Type::Alias(i.0.clone())
+        let mut aliases = ctx.type_alias.iter();
+        if let Some((alias, _)) = aliases.find(|(_, v)| **v == typ) {
+            Type::Alias(alias.clone())
         } else {
             typ
         }
