@@ -222,7 +222,7 @@ impl Node for Expr {
                         let func = |(arg, typ): (&Expr, &Type)| type_check!(arg, typ, ctx);
                         let ziped = args.iter().zip(function.arguments.values());
                         ziped.map(func).collect::<Option<Vec<_>>>()?;
-                        function.returns.polymorphism(ctx)?.type_infer(ctx)
+                        function.returns.polymorphism(ctx)
                     } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                         arglen_check!(params, "macro");
                         let var_ctx = ctx.variable.clone();
