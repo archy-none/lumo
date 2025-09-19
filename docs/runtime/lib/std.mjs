@@ -2,72 +2,54 @@ import { write, read, concatBytes } from "../ffi.mjs";
 
 export class LumoStdLib {
     constructor() {
+        let reads = (typ, val) => read(this.instance, typ, val);
+        let writes = (typ, val) => write(this.instance, typ, val);
         this.functions = {
-            to_str: (value) => {
-                return write(this.instance, "str", value.toString());
-            },
-            to_num: (value) => {
-                return parseFloat(read(this.instance, "str", value));
-            },
+            to_str: (value) => writes("str", value.toString()),
+            to_num: (value) => parseFloat(reads("str", value)),
             repeat: (value, count) => {
-                return write(
-                    this.instance,
-                    "str",
-                    read(this.instance, "str", value).repeat(Math.floor(count)),
-                );
+                value = reads("str", value).repeat(Math.floor(count));
+                return writes("str", value);
             },
             concat: (str1, str2) => {
-                str1 = read(this.instance, "str", str1);
-                str2 = read(this.instance, "str", str2);
-                return write(this.instance, "str", str1 + str2);
+                str1 = reads("str", str1);
+                str2 = reads("str", str2);
+                return writes("str", str1 + str2);
             },
             strcmp: (str1, str2) => {
-                str1 = read(this.instance, "str", str1);
-                str2 = read(this.instance, "str", str2);
+                str1 = reads("str", str1);
+                str2 = reads("str", str2);
                 return str1 === str2;
             },
             strlen: (str) => {
-                str = read(this.instance, "str", str);
+                str = reads("str", str);
                 return str.length;
             },
             split: (str, delimiter) => {
-                str = read(this.instance, "str", str);
-                delimiter = read(this.instance, "str", delimiter);
-                const splitted = str.split(delimiter);
-                const typ = { type: "array", element: "str" };
-                return write(this.instance, typ, splitted);
+                let value = reads("str", str).split(reads("str", delimiter));
+                writes({ type: "array", element: "str" }, value);
             },
             array: (init, len) => {
-                return write(
-                    this.instance,
-                    { type: "array", element: "int" },
-                    Array(len).fill(init),
-                );
+                let value = Array(len).fill(init);
+                writes({ type: "array", element: "int" }, value);
             },
             slice: (ptr, start, end) => {
-                const typ = { type: "array", element: "int" };
-                const array = read(this.instance, typ, ptr);
+                const array = reads({ type: "array", element: "int" }, ptr);
                 const index = (i) => (i < 0 ? array.length + i : i);
-                const slice = array.slice(index(start), index(end));
-                return write(this.instance, typ, slice);
+                const value = array.slice(index(start), index(end));
+                return writes({ type: "array", element: "int" }, value);
             },
             arrlen: (addr) => {
-                const memoryView = new Uint8Array(
-                    this.instance.exports.mem.buffer,
-                );
-                return concatBytes(memoryView.slice(addr, addr + 4), false);
+                let view = new Uint8Array(this.instance.exports.mem.buffer);
+                return concatBytes(view.slice(addr, addr + 4), false);
             },
-            join: (ptr, delimiter) => {
-                const typ = { type: "array", element: "str" };
-                const array = read(this.instance, typ, ptr);
-                delimiter = read(this.instance, "str", delimiter);
-                return write(this.instance, "str", array.join(delimiter));
+            join: (array, delimiter) => {
+                array = reads({ type: "array", element: "str" }, array);
+                writes("str", array.join(reads("str", delimiter)));
             },
             append: (a, b) => {
-                const typ = { type: "array", element: "int" };
-                const array1 = read(this.instance, typ, a);
-                const array2 = read(this.instance, typ, b);
-                return write(this.instance, typ, [...array1, ...array2]);
+                let typ = { type: "array", element: "int" };
+                return writes(typ, [...reads(typ, a), ...reads(typ, b)]);
             },
         };
     }
