@@ -12,6 +12,7 @@ pub enum Type {
     Dict(Dict),
     Enum(Enum),
     Alias(String),
+    Any,
     Void,
 }
 
@@ -23,6 +24,7 @@ impl Node for Type {
             "bool" => Some(Type::Bool),
             "str" => Some(Type::String),
             "void" => Some(Type::Void),
+            "any" => Some(Type::Any),
             source => {
                 let mut source = source.trim().to_owned();
                 if source.starts_with("[") && source.ends_with("]") {
@@ -138,6 +140,7 @@ impl Type {
             Type::Bool => "bool".to_string(),
             Type::String => "str".to_string(),
             Type::Void => "void".to_string(),
+            Type::Any => "any".to_string(),
             Type::Dict(dict) => format!(
                 "@{{ {} }}",
                 dict.iter()
