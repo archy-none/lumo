@@ -10,12 +10,12 @@ pub struct Lumo {
 #[wasm_bindgen]
 impl Lumo {
     #[wasm_bindgen]
-    pub fn get_bytecode(&self) -> Vec<u8> {
+    pub fn bytecode(&self) -> Vec<u8> {
         self.bytecode.clone()
     }
 
     #[wasm_bindgen]
-    pub fn get_return_type(&self) -> String {
+    pub fn return_type(&self) -> String {
         self.return_type.clone()
     }
 }
@@ -41,23 +41,23 @@ pub fn type_to_json(typ: &Type) -> String {
         Type::Number => "\"num\"".to_string(),
         Type::Bool => "\"bool\"".to_string(),
         Type::String => "\"str\"".to_string(),
-        Type::Void => "null".to_string(),
+        Type::Void => "\"void\"".to_string(),
         Type::Any => "\"any\"".to_string(),
         Type::Dict(dict) => format!(
-            "{{ type: \"dict\", fields: {{ {} }} }}",
+            "({{ type: \"dict\", fields: {{ {} }} }})",
             dict.iter()
                 .map(|(k, typ)| format!("{k}: {}", type_to_json(typ)))
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
-        Type::Array(typ) => format!("{{ type: \"array\", element: {} }}", type_to_json(typ)),
+        Type::Array(typ) => format!("({{ type: \"array\", element: {} }})", type_to_json(typ)),
         Type::Enum(e) => format!(
-            "{{ type: \"enum\", enum: [{}] }}",
+            "({{ type: \"enum\", enum: [{}] }})",
             e.iter()
                 .map(|x| format!("\"{x}\""))
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
-        Type::Alias(name) => format!("{{ type: \"alias\", name: \"{name}\" }}"),
+        Type::Alias(name) => format!("({{ type: \"alias\", name: \"{name}\" }})"),
     }
 }
