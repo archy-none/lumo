@@ -130,8 +130,8 @@ class Lumo {
     /**
      * @returns {Uint8Array}
      */
-    get_bytecode() {
-        const ret = wasm.lumo_get_bytecode(this.__wbg_ptr);
+    bytecode() {
+        const ret = wasm.lumo_bytecode(this.__wbg_ptr);
         var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
         wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
         return v1;
@@ -139,11 +139,11 @@ class Lumo {
     /**
      * @returns {string}
      */
-    get_return_type() {
+    return_type() {
         let deferred1_0;
         let deferred1_1;
         try {
-            const ret = wasm.lumo_get_return_type(this.__wbg_ptr);
+            const ret = wasm.lumo_return_type(this.__wbg_ptr);
             deferred1_0 = ret[0];
             deferred1_1 = ret[1];
             return getStringFromWasm0(ret[0], ret[1]);
