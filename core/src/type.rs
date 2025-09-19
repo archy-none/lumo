@@ -133,6 +133,40 @@ impl Type {
         }
     }
 
+    pub fn compare(&self, other: &Self, ctx: &mut Compiler) -> bool {
+        match (self, other) {
+            (Type::Integer, Type::Integer) => true,
+            (Type::Number, Type::Number) => true,
+            (Type::Bool, Type::Bool) => true,
+            (Type::String, Type::String) => true,
+            (Type::Void, Type::Void) => true,
+            (Type::Any, typ) | (typ, Type::Any) => {
+                ctx.type_alias.insert(Type::Any.format(), typ.clone());
+                true
+            }
+            (Type::Dict(a), Type::Dict(b)) => {
+                a.iter().zip(b).all(|((_, a), (_, b))| a.compare(b, ctx))
+            }
+            (Type::Enum(a), Type::Enum(b)) => a == b,
+            (Type::Array(a), Type::Array(b)) => a.clone().compare(b, ctx),
+            (Type::Alias(a), Type::Alias(b)) => a == b,
+            _ => false,
+        }
+    }
+
+    pub fn polymorphism(&self, val: &Type, ctx: &mut Compiler) -> Option<Type> {
+        match self {
+            Type::Any => ctx.type_alias.get(&Type::Any.format()).cloned(),
+            Type::Dict(dict) => Some(Type::Dict(
+                dict.iter()
+                    .map(|(key, typ)| Some((key.clone(), typ.polymorphism(val, ctx)?)))
+                    .collect::<Option<IndexMap<String, Type>>>()?,
+            )),
+            Type::Array(typ) => Some(Type::Array(Box::new(typ.polymorphism(val, ctx)?))),
+            primitive => Some(primitive.clone()),
+        }
+    }
+
     pub fn format(&self) -> String {
         match self {
             Type::Integer => "int".to_string(),
