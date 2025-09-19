@@ -5,7 +5,7 @@ load strlen(a: str): int;
 load slice(a: [str], b: int, c: int): [str];
 load append(a: [str], b: [str]): [str];
 load join(a: [str], b: str): str;
-load arrlen(a: [str]): int;
+load arrlen(a: [any]): int;
 load to_str(a: num): str;
 load to_num(a: str): int;
 load os.argv(): [str];
