@@ -154,15 +154,15 @@ impl Type {
         }
     }
 
-    pub fn polymorphism(&self, val: &Type, ctx: &mut Compiler) -> Option<Type> {
+    pub fn polymorphism(&self, ctx: &mut Compiler) -> Option<Type> {
         match self {
             Type::Any => ctx.type_alias.get(&Type::Any.format()).cloned(),
             Type::Dict(dict) => Some(Type::Dict(
                 dict.iter()
-                    .map(|(key, typ)| Some((key.clone(), typ.polymorphism(val, ctx)?)))
+                    .map(|(key, typ)| Some((key.clone(), typ.polymorphism(ctx)?)))
                     .collect::<Option<IndexMap<String, Type>>>()?,
             )),
-            Type::Array(typ) => Some(Type::Array(Box::new(typ.polymorphism(val, ctx)?))),
+            Type::Array(typ) => Some(Type::Array(Box::new(typ.polymorphism(ctx)?))),
             primitive => Some(primitive.clone()),
         }
     }
