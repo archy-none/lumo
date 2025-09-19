@@ -2,8 +2,8 @@
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
 export const __wbg_lumo_free: (a: number, b: number) => void;
-export const lumo_get_bytecode: (a: number) => [number, number];
-export const lumo_get_return_type: (a: number) => [number, number];
+export const lumo_bytecode: (a: number) => [number, number];
+export const lumo_return_type: (a: number) => [number, number];
 export const lumo: (a: number, b: number) => [number, number, number];
 export const __wbindgen_export_0: WebAssembly.Table;
 export const __wbindgen_free: (a: number, b: number, c: number) => void;
