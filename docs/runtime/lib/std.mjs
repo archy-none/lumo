@@ -21,12 +21,12 @@ export class LumoStdLib {
                 str2 = read(this.instance, "str", str2);
                 return write(this.instance, "str", str1 + str2);
             },
-            str__cmp: (str1, str2) => {
+            strcmp: (str1, str2) => {
                 str1 = read(this.instance, "str", str1);
                 str2 = read(this.instance, "str", str2);
                 return str1 === str2;
             },
-            str__len: (str) => {
+            strlen: (str) => {
                 str = read(this.instance, "str", str);
                 return str.length;
             },
