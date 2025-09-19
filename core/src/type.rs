@@ -166,6 +166,7 @@ impl PartialEq for Type {
             (Type::Bool, Type::Bool) => true,
             (Type::String, Type::String) => true,
             (Type::Void, Type::Void) => true,
+            (Type::Any, _) | (_, Type::Any) => true,
             (Type::Dict(a), Type::Dict(b)) => a == b,
             (Type::Enum(a), Type::Enum(b)) => a == b,
             (Type::Array(a), Type::Array(b)) => a == b,
