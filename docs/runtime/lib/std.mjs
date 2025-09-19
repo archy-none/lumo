@@ -89,11 +89,11 @@ export class LumoNodeLib extends LumoStdLib {
         this.functions.print = (message) => {
             console.log(read(this.instance, "str", message));
         };
+        this.functions.write = (message) => {
+            process.stdout.write(read(this.instance, "str", message));
+        };
     }
 }
-
-let lumoDomIndex = 0;
-let getLumoDom = (id) => `lumo-dom-${id}`;
 
 export class LumoWebLib extends LumoStdLib {
     constructor() {
@@ -107,73 +107,6 @@ export class LumoWebLib extends LumoStdLib {
         this.functions.prompt = (message) => {
             const answer = window.prompt(read(this.instance, "str", message));
             return write(this.instance, "str", answer);
-        };
-        this.functions.init_canvas = () => {
-            let canvas = document.getElementById("lumo-canvas");
-            if (canvas == null) {
-                canvas = document.createElement("canvas");
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                canvas.style.width = `${window.innerWidth}px`;
-                canvas.style.height = `${window.innerHeight}px`;
-                canvas.id = "lumo-canvas";
-                document.body.appendChild(canvas);
-            } else {
-                const ctx = canvas.getContext("2d");
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-        };
-        this.functions.draw = (x, y, color) => {
-            const ctx = document.getElementById("lumo-canvas").getContext("2d");
-            const type = {
-                type: "dict",
-                fields: { r: "int", g: "int", b: "int" },
-            };
-            color = read(this.instance, type, color);
-            ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
-            ctx.fillRect(x, y, 1, 1);
-        };
-        this.functions.new_elm = (tag, parent) => {
-            const elm = document.createElement(read(this.instance, "str", tag));
-            elm.setAttribute("id", getLumoDom(lumoDomIndex++));
-            parent = document.getElementById(getLumoDom(parent));
-            if (parent === null) parent = document.body;
-            parent.appendChild(elm);
-            return lumoDomIndex - 1;
-        };
-        this.functions.prp_elm = (id, property) => {
-            property = read(this.instance, "str", property);
-            let elm = document.getElementById(getLumoDom(id));
-            if (elm === null) elm = document.querySelector(id);
-            console.log(elm, property, elm[property]);
-            if (property == "style") {
-                return write(this.instance, "str", elm.style.cssText);
-            } else {
-                return write(this.instance, "str", elm[property]);
-            }
-        };
-        this.functions.upd_elm = (id, property, content) => {
-            property = read(this.instance, "str", property);
-            content = read(this.instance, "str", content);
-            let elm = document.getElementById(getLumoDom(id));
-            if (elm === null) elm = document.querySelector(id);
-            if (property == "style") {
-                elm.style.cssText += content;
-            } else {
-                elm[property] = content;
-            }
-        };
-        this.functions.evt_elm = (id, name, func) => {
-            const elm = document.getElementById(getLumoDom(id));
-            func = read(this.instance, "str", func);
-            name = read(this.instance, "str", name);
-            if (name.includes("key")) {
-                document.body.addEventListener(name, (event) =>
-                    this.instance.exports[func](event.keyCode),
-                );
-            } else {
-                elm.addEventListener(name, () => this.instance.exports[func]());
-            }
         };
     }
 }
