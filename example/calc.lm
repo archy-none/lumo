@@ -3,7 +3,7 @@ load split(a: str, b: str): [str];
 load strcmp(a: str, b: str): bool;
 load strlen(a: str): int;
 load slice(a: [str], b: int, c: int): [str];
-load append(a: [str], b: [str]): [str];
+load append(a: [any], b: [any]): [any];
 load join(a: [str], b: str): str;
 load arrlen(a: [any]): int;
 load to_str(a: num): str;
