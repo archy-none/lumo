@@ -127,7 +127,11 @@ impl Type {
         };
         let mut aliases = ctx.type_alias.iter();
         if let Some((alias, _)) = aliases.find(|(_, v)| **v == typ) {
-            Type::Alias(alias.clone())
+            if *alias != Type::Any.format() {
+                Type::Alias(alias.clone())
+            } else {
+                typ
+            }
         } else {
             typ
         }
