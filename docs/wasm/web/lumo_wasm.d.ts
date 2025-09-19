@@ -4,8 +4,8 @@ export function lumo(source: string): Lumo;
 export class Lumo {
   private constructor();
   free(): void;
-  get_bytecode(): Uint8Array;
-  get_return_type(): string;
+  bytecode(): Uint8Array;
+  return_type(): string;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -13,8 +13,8 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_lumo_free: (a: number, b: number) => void;
-  readonly lumo_get_bytecode: (a: number) => [number, number];
-  readonly lumo_get_return_type: (a: number) => [number, number];
+  readonly lumo_bytecode: (a: number) => [number, number];
+  readonly lumo_return_type: (a: number) => [number, number];
   readonly lumo: (a: number, b: number) => [number, number, number];
   readonly __wbindgen_export_0: WebAssembly.Table;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
