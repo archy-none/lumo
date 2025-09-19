@@ -42,6 +42,7 @@ pub fn type_to_json(typ: &Type) -> String {
         Type::Bool => "\"bool\"".to_string(),
         Type::String => "\"str\"".to_string(),
         Type::Void => "null".to_string(),
+        Type::Any => "\"any\"".to_string(),
         Type::Dict(dict) => format!(
             "{{ type: \"dict\", fields: {{ {} }} }}",
             dict.iter()
