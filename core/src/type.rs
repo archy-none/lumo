@@ -141,8 +141,12 @@ impl Type {
             (Type::String, Type::String) => true,
             (Type::Void, Type::Void) => true,
             (Type::Any, typ) | (typ, Type::Any) => {
-                ctx.type_alias.insert(Type::Any.format(), typ.clone());
-                true
+                if let Some(any) = ctx.type_alias.get(&Type::Any.format()) {
+                    typ == any
+                } else {
+                    ctx.type_alias.insert(Type::Any.format(), typ.clone());
+                    true
+                }
             }
             (Type::Dict(a), Type::Dict(b)) => {
                 a.iter().zip(b).all(|((_, a), (_, b))| a.compare(b, ctx))
