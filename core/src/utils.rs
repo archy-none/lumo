@@ -55,7 +55,7 @@ macro_rules! type_check {
     ($lhs: expr, $rhs: expr, $ctx: expr) => {{
         let lhs = $lhs.type_infer($ctx)?.type_infer($ctx)?;
         let rhs = $rhs.type_infer($ctx)?.type_infer($ctx)?;
-        if lhs == rhs {
+        if lhs.compare(&rhs, $ctx) {
             Some(lhs.clone())
         } else {
             $ctx.error = Some(format!(
