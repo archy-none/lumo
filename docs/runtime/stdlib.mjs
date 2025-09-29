@@ -1,9 +1,10 @@
 import { write, read, concatBytes } from "./ffi.mjs";
 
+let reads = (typ, val) => read(this.instance, typ, val);
+let writes = (typ, val) => write(this.instance, typ, val);
+
 export class LumoStdLib {
     constructor() {
-        let reads = (typ, val) => read(this.instance, typ, val);
-        let writes = (typ, val) => write(this.instance, typ, val);
         this.functions = {
             to_str: (value) => writes("str", value.toString()),
             to_num: (value) => parseFloat(reads("str", value)),
@@ -61,10 +62,10 @@ export class LumoNodeLib extends LumoStdLib {
     constructor() {
         super();
         this.functions.print = (message) => {
-            console.log(read(this.instance, "str", message));
+            console.log(reads("str", message));
         };
         this.functions.write = (message) => {
-            process.stdout.write(read(this.instance, "str", message));
+            process.stdout.write(reads("str", message));
         };
     }
 }
@@ -73,14 +74,14 @@ export class LumoWebLib extends LumoStdLib {
     constructor() {
         super();
         this.functions.alert = (message) => {
-            window.alert(read(this.instance, "str", message));
+            window.alert(reads("str", message));
         };
         this.functions.confirm = (message) => {
-            return window.confirm(read(this.instance, "str", message));
+            return window.confirm(reads("str", message));
         };
         this.functions.prompt = (message) => {
-            const answer = window.prompt(read(this.instance, "str", message));
-            return write(this.instance, "str", answer);
+            const answer = window.prompt(reads("str", message));
+            return writes("str", answer);
         };
     }
 }
