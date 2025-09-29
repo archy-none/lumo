@@ -1,48 +1,54 @@
 import { write, read, concatBytes } from "./ffi.mjs";
 
-let reads = (typ, val) => read(this.instance, typ, val);
-let writes = (typ, val) => write(this.instance, typ, val);
-
 export class LumoStdLib {
     constructor() {
+        this.reads = (typ, val) => read(this.instance, typ, val);
+        this.writes = (typ, val) => write(this.instance, typ, val);
         this.functions = {
-            to_str: (value) => writes("str", value.toString()),
-            to_num: (value) => parseFloat(reads("str", value)),
+            to_str: (value) => this.writes("str", value.toString()),
+            to_num: (value) => parseFloat(this.reads("str", value)),
             repeat: (value, count) => {
-                value = reads("str", value).repeat(Math.floor(count));
-                return writes("str", value);
+                value = this.reads("str", value).repeat(Math.floor(count));
+                return this.writes("str", value);
             },
             concat: (str1, str2) => {
-                let str = reads("str", str1) + reads("str", str2);
-                return writes("str", str);
+                let str = this.reads("str", str1) + this.reads("str", str2);
+                return this.writes("str", str);
             },
-            strcmp: (str1, str2) => reads("str", str1) === reads("str", str2),
-            strlen: (str) => reads("str", str).length,
+            strcmp: (str1, str2) => {
+                return this.reads("str", str1) === this.reads("str", str2);
+            },
+            strlen: (str) => this.reads("str", str).length,
             split: (str, delimiter) => {
-                let value = reads("str", str).split(reads("str", delimiter));
-                writes({ type: "array", element: "str" }, value);
+                delimiter = this.reads("str", delimiter);
+                let value = this.reads("str", str).split(delimiter);
+                this.writes({ type: "array", element: "str" }, value);
             },
             array: (init, len) => {
                 let value = Array(len).fill(init);
-                writes({ type: "array", element: "int" }, value);
+                this.writes({ type: "array", element: "int" }, value);
             },
             slice: (ptr, start, end) => {
-                const array = reads({ type: "array", element: "int" }, ptr);
+                const typ = { type: "array", element: "int" };
                 const index = (i) => (i < 0 ? array.length + i : i);
-                const value = array.slice(index(start), index(end));
-                return writes({ type: "array", element: "int" }, value);
+                const array = this.reads(typ, ptr);
+                const result = array.slice(index(start), index(end));
+                return this.writes(typ, result);
             },
             arrlen: (addr) => {
                 let view = new Uint8Array(this.instance.exports.mem.buffer);
                 return concatBytes(view.slice(addr, addr + 4), false);
             },
             join: (array, delimiter) => {
-                array = reads({ type: "array", element: "str" }, array);
-                writes("str", array.join(reads("str", delimiter)));
+                array = this.reads({ type: "array", element: "str" }, array);
+                this.writes("str", array.join(reads("str", delimiter)));
             },
             append: (a, b) => {
                 let typ = { type: "array", element: "int" };
-                return writes(typ, [...reads(typ, a), ...reads(typ, b)]);
+                return this.writes(typ, [
+                    ...this.reads(typ, a),
+                    ...this.reads(typ, b),
+                ]);
             },
         };
     }
@@ -62,10 +68,10 @@ export class LumoNodeLib extends LumoStdLib {
     constructor() {
         super();
         this.functions.print = (message) => {
-            console.log(reads("str", message));
+            console.log(this.reads("str", message));
         };
         this.functions.write = (message) => {
-            process.stdout.write(reads("str", message));
+            process.stdout.write(this.reads("str", message));
         };
     }
 }
@@ -74,14 +80,14 @@ export class LumoWebLib extends LumoStdLib {
     constructor() {
         super();
         this.functions.alert = (message) => {
-            window.alert(reads("str", message));
+            window.alert(this.reads("str", message));
         };
         this.functions.confirm = (message) => {
-            return window.confirm(reads("str", message));
+            return window.confirm(this.reads("str", message));
         };
         this.functions.prompt = (message) => {
-            const answer = window.prompt(reads("str", message));
-            return writes("str", answer);
+            const answer = window.prompt(this.reads("str", message));
+            return this.writes("str", answer);
         };
     }
 }
