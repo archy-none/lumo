@@ -53,7 +53,7 @@ pub struct Compiler {
     /// Macro code that's processing in compile time
     pub r#macro: IndexMap<String, (Vec<String>, Expr)>,
     /// Operator overload code that's processing in compile time
-    pub overload: IndexMap<(usize, (String, String)), String>,
+    pub overload: IndexMap<String, (usize, (Type, Type))>,
     /// Type alias that's defined by user
     pub type_alias: IndexMap<String, Type>,
     /// Errors that occurred during compilation
