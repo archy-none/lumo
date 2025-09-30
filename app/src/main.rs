@@ -59,9 +59,9 @@ fn main() {
         }
         println!("Overloads:");
         let table = Op::overload_id_table();
-        for ((op, (lhs, rhs)), function) in &compiler.overload {
+        for (function, (op, (lhs, rhs))) in &compiler.overload {
             let op = table.iter().find(|&(_, id)| id == op).unwrap().0;
-            println!(" - {function}: {lhs} {op} {rhs}");
+            println!(" - {function}: {} {op} {}", lhs.format(), rhs.format());
         }
         println!("Variables:");
         for (name, typ) in &compiler.variable {
