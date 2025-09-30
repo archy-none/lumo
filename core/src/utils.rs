@@ -163,17 +163,23 @@ macro_rules! address_calc {
 #[macro_export]
 macro_rules! overload {
     ($self: expr, $ctx: expr, $method: ident) => {{
+        fn key_from_value<V: PartialEq, K>(map: &IndexMap<K, V>, value: &V) -> Option<&K> {
+            map.iter()
+                .find_map(|(k, v)| if v == value { Some(k) } else { None })
+        }
         let mut overload = || {
             if let Some((lhs, rhs)) = $self.binop_term() {
-                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx).format();
-                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx).format();
+                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx);
+                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx);
                 let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
-                Some(Expr::Call($ctx.overload.get(&key)?.to_string(), vec![lhs, rhs]).$method($ctx))
+                let func = key_from_value(&$ctx.overload, &key)?;
+                Some(Expr::Call(func, vec![lhs, rhs]).$method($ctx))
             } else if let Op::Cast(lhs, rhs) = $self.clone() {
-                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx).format();
-                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx).format();
+                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx);
+                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx);
                 let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
-                Some(Expr::Call($ctx.overload.get(&key)?.to_string(), vec![lhs]).$method($ctx))
+                let func = key_from_value(&$ctx.overload, &key)?;
+                Some(Expr::Call(func, vec![lhs]).$method($ctx))
             } else {
                 None
             }
