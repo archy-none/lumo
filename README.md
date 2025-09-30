@@ -7,11 +7,34 @@ WebAssemblyに直接コンパイルする静的型付けプログラミング言
 
 LumoはWebAssembly(WASM)にコンパイルすることに特化して設計された自由なプログラミング言語です。分かりやすいシンプルな文法で初心者でも扱いやすく、かつマクロや構造体、演算子のオーバーロードなど近代的な言語機能が備わっており、静的型付けとメモリ安全性、JavaScript環境とのシームレスな統合を特徴としています。
 
+## 機能紹介
+
+### JavaScript多相関数での演算子のオーバーロード
+```
+Lumo REPL
+> load append(a: [any], b: [any]): [any]
+> overload append = [any] + [any]
+> [1, 2] + [3]
+[ 1, 2, 3 ]
+> ["one", "two"] + ["three"]
+[ 'one', 'two', 'three' ]
+```
+
+### マクロ定義とコンパイル時型エラー処理
+```
+Lumo REPL
+> macro inc(n) = { try n + 1 catch n + 1.0 }
+> inc(3)
+4
+> inc(3.14)
+4.14
+```
+
 ## プログラム例
 
 Lumoでは、定番のアルゴリズムも以下のように簡潔に記述することが出来ます。
 
-### FizzBuzz
+### FizzBuzz出力
 ```lumo
 load to_str(n: num): str;
 load print(n: str): void;
