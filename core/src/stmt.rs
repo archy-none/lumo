@@ -394,8 +394,8 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Overload(id, (arg1, arg2), name) => {
-                let key = (*id, (arg1.format(), arg2.format()));
-                ctx.overload.insert(key, name.clone());
+                ctx.overload
+                    .insert(name.clone(), (*id, (arg1.clone(), arg2.clone())));
                 Type::Void
             }
             Stmt::Return(Some(value)) => {
