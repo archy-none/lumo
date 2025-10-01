@@ -166,6 +166,7 @@ pub fn str_format(input: &str) -> Option<Vec<String>> {
 }
 
 pub fn is_identifier(name: &mut String) -> bool {
+    *name = name.trim().to_owned();
     if name.is_empty() {
         return false;
     }
