@@ -1,6 +1,6 @@
 use chrono::Local;
 use clap::Parser;
-use lumo_core::{Compiler, Op};
+use lumo_core::{Compiler, Op, Type};
 use sha2::{Digest, Sha256};
 use std::{
     env::{current_dir, set_current_dir},
@@ -73,7 +73,9 @@ fn main() {
         }
         println!("Aliases:");
         for (name, typ) in &compiler.type_alias {
-            println!(" - {name}: {}", typ.format());
+            if *name != Type::Any.format() {
+                println!(" - {name}: {}", typ.format());
+            }
         }
         println!("Macros:");
         for (name, (args, _)) in &compiler.r#macro {
