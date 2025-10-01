@@ -10,7 +10,7 @@ Lumoは、独自のバックエンドを開発する事によりLLVMなどの既
 ## 機能紹介
 
 ### オブジェクトと内部値の更新
-```
+```rust
 Lumo REPL
 > let array = [1, 2, 3]
 > array[-1]
@@ -27,7 +27,7 @@ Lumo REPL
 ```
 
 ### JavaScript多相関数での演算子のオーバーロード
-```
+```rust
 Lumo REPL
 > import append([any], [any]): [any]
 > overload append = [any] + [any]
@@ -50,7 +50,7 @@ Lumo REPL
 Lumoでは、定番のアルゴリズムも以下のように簡潔に記述することが出来ます。
 
 ### FizzBuzz出力
-```lumo
+```rust
 import to_str(num): str;
 import to_num(str): num;
 import print(str): void;
@@ -70,7 +70,7 @@ while i <= 100 loop {
 ```
 
 ### リンクリスト
-```lumo
+```rust
 import arrlen([any]): int;
 
 type LinkList = @{ car: int, cdr: LinkList };
@@ -111,7 +111,7 @@ a.clone().append(b) + a
 ```
 
 型推論サマリーの出力 (`lumo example/list.lm --summary`)
-```
+```yaml
 # Type Inference Summary
 Functions:
  - arrlen(0: [LinkList]): int
