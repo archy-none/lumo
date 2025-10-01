@@ -364,7 +364,7 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Type(name, value) => {
-                ctx.type_alias.insert(name.to_string(), value.clone());
+                ctx.alias.insert(name.to_string(), value.clone());
                 Type::Void
             }
             Stmt::Macro(name, args, expr) => {
