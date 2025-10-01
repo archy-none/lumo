@@ -23,7 +23,7 @@ pub use {
 
 pub trait Node {
     fn compile(&self, ctx: &mut Compiler) -> Option<String>;
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type>;
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type>;
     fn parse(source: &str) -> Option<Self>
     where
         Self: Node + Sized;
@@ -97,7 +97,7 @@ impl Compiler {
 
     pub fn build(&mut self, source: &str) -> Option<String> {
         let ast = Block::parse(source)?;
-        self.result = ast.type_infer(self)?;
+        self.result = ast.infer(self)?;
         Some(format!(
             "(module {import} {memory} {memcpy} {strings} {declare} {global} {main})",
             main = format!(
