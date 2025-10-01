@@ -207,9 +207,10 @@ impl Node for Expr {
                 }
                 if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned() {
                     arglen_check!(function.arguments, "function");
-                    let func = |(arg, typ): (&Expr, &Type)| type_check!(arg, typ, ctx);
-                    let ziped = args.iter().zip(function.arguments.values());
-                    ziped.map(func).collect::<Option<Vec<_>>>()?;
+                    args.iter()
+                        .zip(function.arguments.values())
+                        .map(|(arg, typ)| type_check!(arg, typ, ctx))
+                        .collect::<Option<Vec<_>>>()?;
                     function.returns.polymorphism(ctx)?
                 } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     arglen_check!(params, "macro");
