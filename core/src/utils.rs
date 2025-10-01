@@ -45,7 +45,7 @@ macro_rules! is_ptr {
     ($typ: expr, $ctx: expr) => {
         matches!(
             $typ.infer($ctx)?,
-            Type::String | Type::Array(_) | Type::Dict(_) | Type::Alias(_)
+            Type::String | Type::Array(_) | Type::Dict(_)
         )
     };
 }
@@ -56,7 +56,7 @@ macro_rules! type_check {
         let lhs = $lhs.infer($ctx)?.infer($ctx)?;
         let rhs = $rhs.infer($ctx)?.infer($ctx)?;
         if lhs.compare(&rhs, $ctx) {
-            Some(lhs.clone())
+            Some(lhs)
         } else {
             $ctx.error = Some(format!(
                 "type mismatch between {} and {}",
