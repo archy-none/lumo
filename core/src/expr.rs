@@ -199,8 +199,7 @@ impl Node for Expr {
                     ($params: expr, $typ: literal) => {
                         if args.len() != $params.len() {
                             let (typ, paramlen, arglen) = ($typ, $params.len(), args.len());
-                            let errmsg = format!("arguments of {typ} `{name}` length should be {paramlen}, but passed {arglen} values");
-                            ctx.error = Some(errmsg);
+                            ctx.error = Some(format!("arguments of {typ} `{name}` length should be {paramlen}, but passed {arglen} values"));
                             return None;
                         }
                     };
