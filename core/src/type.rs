@@ -104,12 +104,12 @@ impl Type {
                 typ.solve_alias(ctx, [xpct.clone(), vec![self.clone()]].concat())?,
             ))),
             Type::Dict(dict) => {
-                let mut a = IndexMap::new();
+                let mut result = IndexMap::new();
                 for (name, typ) in dict {
                     let typ = typ.solve_alias(ctx, [xpct.clone(), vec![self.clone()]].concat())?;
-                    a.insert(name.clone(), typ.clone());
+                    result.insert(name.clone(), typ.clone());
                 }
-                Some(Type::Dict(a))
+                Some(Type::Dict(result))
             }
             _ => Some(self.clone()),
         }
