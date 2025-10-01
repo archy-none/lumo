@@ -5,8 +5,8 @@ pub const OPERATOR: [&str; 23] = [
     "|", "^", ":", "!", "?", "~",
 ];
 pub const RESERVED: [&str; 15] = [
-    "pub", "let", "type", "if", "then", "else", "while", "loop", "break", "next", "return", "load",
-    "overload", "try", "catch",
+    "pub", "let", "type", "if", "then", "else", "while", "loop", "break", "next", "return",
+    "import", "overload", "try", "catch",
 ];
 
 #[macro_export]
@@ -207,26 +207,6 @@ macro_rules! check_args {
             }
         }
     };
-}
-
-#[macro_export]
-macro_rules! import_args {
-    ($sigs: expr) => {{
-        let Op::Cast(Expr::Call(name, args), ret_typ) = Op::parse($sigs)? else {
-            return None;
-        };
-        let mut args_typ = vec![];
-        for arg in args {
-            let Expr::Operator(arg) = arg else {
-                return None;
-            };
-            let Op::Cast(Expr::Variable(arg_name), arg_typ) = *arg.clone() else {
-                return None;
-            };
-            args_typ.push((arg_name, arg_typ));
-        }
-        (name, args_typ, ret_typ)
-    }};
 }
 
 #[macro_export]
