@@ -30,7 +30,7 @@ pub trait Node {
 }
 
 /// Import function signature: name, arguments, return, alias
-type Signature = (String, Vec<(String, Type)>, Type);
+type Signature = (String, Vec<Type>, Type);
 /// Function includes local variables, arguments, and returns
 #[derive(Debug, Clone)]
 pub struct Function {
