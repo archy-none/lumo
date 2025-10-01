@@ -9,6 +9,23 @@ Lumoは、独自のバックエンドを開発する事によりLLVMなどの既
 
 ## 機能紹介
 
+### オブジェクトの内部値の更新
+```
+Lumo REPL
+> let array = [1, 2, 3]
+> array[-1]
+3
+> let array[0] = 100
+> array
+[ 100, 2, 3 ]
+> let dict = @{ x: 1.2, y: 3.4 }
+> dict.x + dict.y
+4.6
+> let dict.x * 10.0
+> dict
+{ x: 12, y: 3.4 }
+```
+
 ### JavaScript多相関数での演算子のオーバーロード
 ```
 Lumo REPL
@@ -24,10 +41,8 @@ Lumo REPL
 ```
 Lumo REPL
 > macro inc(n) = { try n + 1 catch n + 1.0 }
-> inc(3)
-4
-> inc(3.14)
-4.14
+> inc(3): num + inc(3.14)
+8.14
 ```
 
 ## プログラム例
