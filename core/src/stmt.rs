@@ -10,7 +10,7 @@ pub enum Stmt {
     Try(Expr, Box<Stmt>),
     Macro(String, Vec<String>, Expr),
     Overload(usize, (Type, Type), String),
-    Import(Option<String>, Signature),
+    Import(Signature),
     Return(Option<Expr>),
     Break,
     Next,
@@ -117,14 +117,18 @@ impl Node for Stmt {
                 (Type::parse(lhs)?, Type::parse(rhs)?),
                 name.trim().to_owned(),
             ))
-        } else if let Some(after) = source.strip_prefix("load ") {
-            let rest = after.trim_start();
-            if let Some((module, sigs)) = rest.split_once(".") {
-                let module = module.trim().to_string();
-                Some(Stmt::Import(Some(module), import_args!(sigs)))
-            } else {
-                Some(Stmt::Import(None, import_args!(after)))
-            }
+        } else if let Some(source) = source.strip_prefix("import ") {
+            let (body, ret) = source.rsplit_once(":").or(Some((source, "void")))?;
+            let (name, args) = body.trim().replace(")", "").split_once("(")?;
+            let args = tokenize(args, &[","], false, true, false)?
+                .iter()
+                .map(|x| Type::parse(x))
+                .collect::<Option<Vec<Type>>>()?;
+            let mut name = name.trim().to_string();
+            if !is_identifier(&mut name) {
+                return None;
+            };
+            Some(Stmt::Import((name, args, Type::parse(ret)?)))
         } else if let Some(source) = source.strip_prefix("return ") {
             Some(Stmt::Return(Some(Expr::parse(source)?)))
         } else if source == "return" {
