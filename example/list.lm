@@ -1,4 +1,4 @@
-load arrlen(data: [any]): int;
+import arrlen([any]): int;
 
 type LinkList = @{ car: int, cdr: LinkList };
 
