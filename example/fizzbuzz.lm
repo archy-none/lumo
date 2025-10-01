@@ -1,6 +1,6 @@
-load to_str(n: num): str;
-load to_num(n: str): num;
-load print(n: str): void;
+import to_str(num): str;
+import to_num(str): num;
+import print(str): void;
 
 let fizzbuzz(n: int) = {
     if n % 15 == 0 then "FizzBuzz"
