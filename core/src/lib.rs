@@ -55,7 +55,7 @@ pub struct Compiler {
     /// Operator overload code that's processing in compile time
     pub overload: IndexMap<String, (usize, (Type, Type))>,
     /// Type alias that's defined by user
-    pub type_alias: IndexMap<String, Type>,
+    pub alias: IndexMap<String, Type>,
     /// Errors that occurred during compilation
     pub error: Option<String>,
     /// Flag to indicate if we are inside a while loop
@@ -85,7 +85,7 @@ impl Compiler {
             in_while: false,
             r#macro: IndexMap::new(),
             overload: IndexMap::new(),
-            type_alias: IndexMap::new(),
+            alias: IndexMap::new(),
             variable: IndexMap::new(),
             global: IndexMap::new(),
             argument: IndexMap::new(),
