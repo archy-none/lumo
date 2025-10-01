@@ -120,7 +120,7 @@ impl Node for Op {
             Op::LOr(lhs, rhs) => compile_op!("or", ctx, lhs, rhs),
             Op::Eql(lhs, rhs) => compile_op!("eq", ctx, lhs, rhs),
             Op::Mod(lhs, rhs) => {
-                let typ = lhs.type_infer(ctx)?.compile(ctx)?;
+                let typ = lhs.infer(ctx)?.compile(ctx)?;
                 let (lhs, rhs) = (lhs.compile(ctx)?, rhs.compile(ctx)?);
                 if typ == "i32" {
                     format!("(i32.rem_s (i32.add (i32.rem_s {lhs} {rhs}) {rhs}) {rhs})")
@@ -133,8 +133,8 @@ impl Node for Op {
                 compile_op!("xor", ctx, lhs, minus_one)
             }
             Op::Cast(val, typ) => {
-                let typ = typ.type_infer(ctx)?;
-                match (val.type_infer(ctx)?, &typ) {
+                let typ = typ.infer(ctx)?;
+                match (val.infer(ctx)?, &typ) {
                     (Type::Number | Type::Integer, Type::String) => {
                         let numized = Expr::Operator(Box::new(Op::Cast(val.clone(), Type::Number)));
                         Expr::Call("to_str".to_owned(), vec![numized]).compile(ctx)?
@@ -163,8 +163,8 @@ impl Node for Op {
         })
     }
 
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
-        overload!(self, ctx, type_infer);
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
+        overload!(self, ctx, infer);
         match self {
             Op::Add(lhs, rhs)
             | Op::Sub(lhs, rhs)
@@ -193,8 +193,8 @@ impl Node for Op {
                 Some(Type::Bool)
             }
             Op::Cast(lhs, rhs) => {
-                let lhs = lhs.type_infer(ctx)?;
-                let rhs = rhs.type_infer(ctx)?;
+                let lhs = lhs.infer(ctx)?;
+                let rhs = rhs.infer(ctx)?;
                 match (lhs.clone(), rhs.clone()) {
                     (Type::Number, Type::Integer) => Some(Type::Integer),
                     (Type::Integer, Type::Number) => Some(Type::Number),
@@ -214,11 +214,11 @@ impl Node for Op {
                 Some(Type::Integer)
             }
             Op::Transmute(lhs, rhs) => {
-                lhs.type_infer(ctx)?;
-                rhs.type_infer(ctx)
+                lhs.infer(ctx)?;
+                rhs.infer(ctx)
             }
             Op::NullCheck(expr) => {
-                if is_ptr!(expr.type_infer(ctx)?, ctx) {
+                if is_ptr!(expr.infer(ctx)?, ctx) {
                     Some(Type::Bool)
                 } else {
                     let errmsg = format!("can't null-check primitive typed value");
