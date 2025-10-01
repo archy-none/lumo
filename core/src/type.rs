@@ -161,16 +161,19 @@ impl Type {
         }
     }
 
-    pub fn polymorphism(&self, ctx: &mut Compiler) -> Option<Type> {
+    pub fn polymorphism(&self, ctx: &mut Compiler) -> Type {
         match self {
-            Type::Any => ctx.alias.swap_remove(&Type::Any.format()),
-            Type::Dict(dict) => Some(Type::Dict(
+            Type::Any => ctx
+                .alias
+                .swap_remove(&Type::Any.format())
+                .unwrap_or(Type::Any),
+            Type::Dict(dict) => Type::Dict(
                 dict.iter()
-                    .map(|(key, typ)| Some((key.clone(), typ.polymorphism(ctx)?)))
-                    .collect::<Option<IndexMap<String, Type>>>()?,
-            )),
-            Type::Array(typ) => Some(Type::Array(Box::new(typ.polymorphism(ctx)?))),
-            primitive => Some(primitive.clone()),
+                    .map(|(key, typ)| (key.clone(), typ.polymorphism(ctx)))
+                    .collect::<IndexMap<String, Type>>(),
+            ),
+            Type::Array(typ) => Type::Array(Box::new(typ.polymorphism(ctx))),
+            primitive => primitive.clone(),
         }
     }
 
