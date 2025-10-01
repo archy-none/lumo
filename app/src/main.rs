@@ -72,7 +72,7 @@ fn main() {
             println!(" - {name}: {}", typ.restore_alias(&compiler).format());
         }
         println!("Aliases:");
-        for (name, typ) in &compiler.type_alias {
+        for (name, typ) in &compiler.alias {
             if *name != Type::Any.format() {
                 println!(" - {name}: {}", typ.format());
             }
