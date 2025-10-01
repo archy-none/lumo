@@ -19,7 +19,7 @@ impl Node for Block {
         for (n, line) in block.iter().enumerate() {
             let mut output = line.compile(ctx)?;
             if n != block.len() - 1 {
-                if !matches!(line.type_infer(ctx)?, Type::Void) {
+                if !matches!(line.infer(ctx)?, Type::Void) {
                     output.push_str("(drop)");
                 }
             }
@@ -28,7 +28,7 @@ impl Node for Block {
         Some(join!(result))
     }
 
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
         let var_ctx = ctx.variable.clone();
         let fun_ctx = ctx.function.clone();
         let mcr_ctx = ctx.r#macro.clone();
@@ -36,7 +36,7 @@ impl Node for Block {
         let Block(block) = self.clone();
         let mut result = Type::Void;
         for line in block {
-            result = line.type_infer(ctx)?;
+            result = line.infer(ctx)?;
         }
 
         ctx.variable = var_ctx;
