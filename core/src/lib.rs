@@ -44,8 +44,6 @@ pub struct Function {
 pub struct Compiler {
     /// Address tracker
     pub allocator: i32,
-    /// For generate name
-    pub counter: usize,
     /// Code that imports external module
     pub import: Vec<String>,
     /// Static string data
@@ -80,7 +78,6 @@ impl Compiler {
     pub fn new() -> Self {
         Compiler {
             allocator: 0,
-            counter: 0,
             import: vec![],
             data: vec![],
             declare: vec![],
