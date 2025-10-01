@@ -120,7 +120,6 @@ impl Node for Stmt {
         } else if let Some(source) = source.strip_prefix("import ") {
             let (body, ret) = source.rsplit_once(":").or(Some((source, "void")))?;
             let (name, args) = body.split_once("(")?;
-            dbg!(name, args);
             let mut name = name.trim().to_string();
             if !is_identifier(&mut name) {
                 return None;
@@ -248,6 +247,7 @@ impl Node for Stmt {
             },
             Stmt::Try(expr, catch) => expr.compile(ctx).or(catch.compile(ctx))?,
             Stmt::Import(funcs) => {
+                self.type_infer(ctx)?;
                 let (name, _, ret_typ) = funcs.clone();
                 let function = ctx.function.get(&name)?.clone();
                 let sig = compile_args!(function, ctx);
