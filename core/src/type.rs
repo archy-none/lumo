@@ -65,7 +65,7 @@ impl Node for Type {
 
     fn compile(&self, ctx: &mut Compiler) -> Option<String> {
         Some(
-            match self.type_infer(ctx)? {
+            match self.infer(ctx)? {
                 Type::Number => "f32",
                 Type::Integer
                 | Type::Bool
@@ -79,7 +79,7 @@ impl Node for Type {
         )
     }
 
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
         self.solve_alias(ctx, vec![])
     }
 }
@@ -87,8 +87,8 @@ impl Node for Type {
 impl Type {
     pub fn solve_alias(&self, ctx: &mut Compiler, xpct: Vec<Type>) -> Option<Type> {
         for x in &xpct {
-            if x.compress_alias(ctx) == self.compress_alias(ctx) {
-                return Some(self.compress_alias(ctx));
+            if x.restore_alias(ctx) == self.restore_alias(ctx) {
+                return Some(self.restore_alias(ctx));
             }
         }
         match self {
@@ -115,12 +115,12 @@ impl Type {
         }
     }
 
-    pub fn compress_alias(&self, ctx: &Compiler) -> Type {
+    pub fn restore_alias(&self, ctx: &Compiler) -> Type {
         let typ = match self {
-            Type::Array(typ) => Type::Array(Box::new(typ.compress_alias(ctx))),
+            Type::Array(typ) => Type::Array(Box::new(typ.restore_alias(ctx))),
             Type::Dict(dict) => Type::Dict(
                 dict.iter()
-                    .map(|(key, typ)| (key.clone(), (typ.compress_alias(ctx))))
+                    .map(|(key, typ)| (key.clone(), (typ.restore_alias(ctx))))
                     .collect(),
             ),
             _ => self.clone(),
