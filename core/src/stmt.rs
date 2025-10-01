@@ -148,7 +148,7 @@ impl Node for Stmt {
             Stmt::If(cond, then, r#else) => {
                 format!(
                     "(if {} {} (then {}) {})",
-                    compile_return!(self.type_infer(ctx)?, ctx),
+                    compile_return!(self.infer(ctx)?, ctx),
                     cond.compile(ctx)?,
                     then.compile(ctx)?,
                     if let Some(r#else) = r#else {
@@ -174,14 +174,14 @@ impl Node for Stmt {
             Stmt::Let(scope, name, value) => match name {
                 Expr::Variable(name) => match scope {
                     Scope::Local => {
-                        let typ = value.type_infer(ctx)?;
+                        let typ = value.infer(ctx)?;
                         if !ctx.argument.contains_key(name) {
                             ctx.variable.insert(name.to_string(), typ);
                         }
                         format!("(local.set ${name} {})", value.compile(ctx)?)
                     }
                     Scope::Global => {
-                        let typ = value.type_infer(ctx)?;
+                        let typ = value.infer(ctx)?;
                         if !ctx.global.contains_key(name) {
                             ctx.global.insert(name.to_string(), typ);
                         }
@@ -189,7 +189,7 @@ impl Node for Stmt {
                     }
                 },
                 Expr::Call(name, _) => {
-                    self.type_infer(ctx);
+                    self.infer(ctx);
                     let var_ctx = ctx.variable.clone();
                     let arg_ctx = ctx.argument.clone();
                     let function = ctx.function.get(name).or(ctx.export.get(name))?.clone();
@@ -203,7 +203,7 @@ impl Node for Stmt {
                                 .iter()
                                 .map(|(name, typ)| Some(format!(
                                     "(param ${name} {})",
-                                    typ.type_infer(ctx)?.compile(ctx)?
+                                    typ.infer(ctx)?.compile(ctx)?
                                 )))
                                 .collect::<Option<Vec<_>>>()?
                         ),
@@ -217,29 +217,29 @@ impl Node for Stmt {
                     String::new()
                 }
                 Expr::Operator(oper) => {
-                    self.type_infer(ctx)?;
+                    self.infer(ctx)?;
                     let Op::Cast(func, _) = *oper.clone() else {
                         return None;
                     };
                     Stmt::Let(*scope, func, value.clone()).compile(ctx)?
                 }
                 Expr::Index(array, index) => {
-                    let typ = array.type_infer(ctx)?;
+                    let typ = array.infer(ctx)?;
                     let Type::Array(inner_typ) = typ.clone() else {
                         return None;
                     };
-                    type_check!(inner_typ, value.type_infer(ctx)?, ctx)?;
+                    type_check!(inner_typ, value.infer(ctx)?, ctx)?;
                     let addr = Box::new(address_calc!(array, index, typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?
                 }
                 Expr::Field(expr, key) => {
-                    let typ = expr.type_infer(ctx)?;
+                    let typ = expr.infer(ctx)?;
                     let Type::Dict(dict) = typ.clone() else {
                         return None;
                     };
                     let inner_typ = dict.get(key)?.clone();
                     let offset = dict.get_index_of(key)? as i32 * BYTES;
-                    type_check!(inner_typ, value.type_infer(ctx)?, ctx)?;
+                    type_check!(inner_typ, value.infer(ctx)?, ctx)?;
                     let addr = Box::new(offset_calc!(expr, offset, typ));
                     Expr::Poke(addr, Box::new(value.clone())).compile(ctx)?
                 }
@@ -247,7 +247,7 @@ impl Node for Stmt {
             },
             Stmt::Try(expr, catch) => expr.compile(ctx).or(catch.compile(ctx))?,
             Stmt::Import(funcs) => {
-                self.type_infer(ctx)?;
+                self.infer(ctx)?;
                 let (name, _, ret_typ) = funcs.clone();
                 let function = ctx.function.get(&name)?.clone();
                 let sig = compile_args!(function, ctx);
@@ -264,22 +264,22 @@ impl Node for Stmt {
         })
     }
 
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
         Some(match self {
-            Stmt::Expr(expr) => expr.type_infer(ctx)?,
+            Stmt::Expr(expr) => expr.infer(ctx)?,
             Stmt::If(cond, then, r#else) => {
                 type_check!(cond, Type::Bool, ctx)?;
                 if let Some(r#else) = r#else {
                     type_check!(then, r#else, ctx)?
                 } else {
-                    then.type_infer(ctx)?
+                    then.infer(ctx)?
                 }
             }
             Stmt::While(cond, body) => {
                 type_check!(cond, Type::Bool, ctx)?;
                 let in_while = ctx.in_while;
                 ctx.in_while = true;
-                body.type_infer(ctx)?;
+                body.infer(ctx)?;
                 ctx.in_while = in_while;
                 Type::Void
             }
@@ -295,7 +295,7 @@ impl Node for Stmt {
                     Expr::Variable(name) => match scope {
                         Scope::Local => {
                             if !ctx.argument.contains_key(name) {
-                                let value_type = value.type_infer(ctx)?;
+                                let value_type = value.infer(ctx)?;
                                 if let Some(exist_val) = ctx.clone().variable.get(name) {
                                     type_check!(exist_val, value_type, ctx)?;
                                 } else {
@@ -308,7 +308,7 @@ impl Node for Stmt {
                             }
                         }
                         Scope::Global => {
-                            let value_type = value.type_infer(ctx)?;
+                            let value_type = value.infer(ctx)?;
                             if let Some(exist_val) = ctx.clone().global.get(name) {
                                 type_check!(exist_val, value_type, ctx)?;
                             } else {
@@ -323,7 +323,7 @@ impl Node for Stmt {
                         ctx.argument.clear();
                         check_args!(args, ctx);
                         let frame = Function {
-                            returns: value.type_infer(ctx)?,
+                            returns: value.infer(ctx)?,
                             variables: ctx.variable.clone(),
                             arguments: ctx.argument.clone(),
                         };
@@ -351,14 +351,14 @@ impl Node for Stmt {
                                     returns: ret.clone(),
                                 },
                             );
-                            type_check!(value.type_infer(ctx)?, ret, ctx);
+                            type_check!(value.infer(ctx)?, ret, ctx);
                             ctx.variable = var_ctx;
                             ctx.argument = arg_ctx;
                         }
                         _ => return None,
                     },
                     _ => {
-                        value.type_infer(ctx);
+                        value.infer(ctx);
                     }
                 }
                 Type::Void
@@ -372,7 +372,7 @@ impl Node for Stmt {
                 ctx.r#macro.insert(name.to_owned(), value);
                 Type::Void
             }
-            Stmt::Try(expr, catch) => expr.type_infer(ctx).or(catch.type_infer(ctx))?,
+            Stmt::Try(expr, catch) => expr.infer(ctx).or(catch.infer(ctx))?,
             Stmt::Import(function) => {
                 let (fn_name, args, ret_typ) = function;
                 ctx.function.insert(
@@ -397,7 +397,7 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Return(Some(value)) => {
-                value.type_infer(ctx)?;
+                value.infer(ctx)?;
                 Type::Void
             }
             Stmt::Return(_) => Type::Void,
