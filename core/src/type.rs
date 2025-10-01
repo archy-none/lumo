@@ -92,7 +92,7 @@ impl Type {
                 return Some(result);
             }
         }
-        let xpct = [xpct.clone(), vec![self.clone()]].concat();
+        let xpcts = [xpct.clone(), vec![self.clone()]].concat();
         match self {
             Type::Alias(name) => {
                 let Some(typ) = ctx.alias.get(name).cloned() else {
@@ -102,11 +102,11 @@ impl Type {
                 };
                 typ.solve_alias(ctx, xpct.clone())
             }
-            Type::Array(typ) => Some(Type::Array(Box::new(typ.solve_alias(ctx, xpct)?))),
+            Type::Array(typ) => Some(Type::Array(Box::new(typ.solve_alias(ctx, xpcts)?))),
             Type::Dict(dict) => {
                 let mut result = IndexMap::new();
                 for (name, typ) in dict {
-                    let typ = typ.solve_alias(ctx, xpct.clone())?;
+                    let typ = typ.solve_alias(ctx, xpcts.clone())?;
                     result.insert(name.clone(), typ.clone());
                 }
                 Some(Type::Dict(result))
