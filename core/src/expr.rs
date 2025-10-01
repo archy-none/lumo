@@ -210,7 +210,7 @@ impl Node for Expr {
                         .zip(function.arguments.values())
                         .map(|(arg, typ)| type_check!(arg, typ, ctx))
                         .collect::<Option<Vec<_>>>()?;
-                    function.returns.polymorphism(ctx)?
+                    function.returns.polymorphism(ctx)
                 } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     arglen_check!(params, "macro");
                     let var_ctx = ctx.variable.clone();
