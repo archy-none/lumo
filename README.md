@@ -36,8 +36,9 @@ Lumoでは、定番のアルゴリズムも以下のように簡潔に記述す�
 
 ### FizzBuzz出力
 ```lumo
-load to_str(n: num): str;
-load print(n: str): void;
+import to_str(num): str;
+import to_num(str): num;
+import print(str): void;
 
 let fizzbuzz(n: int) = {
     if n % 15 == 0 then "FizzBuzz"
@@ -55,7 +56,12 @@ while i <= 100 loop {
 
 ### リンクリスト
 ```lumo
+import arrlen([any]): int;
+
 type LinkList = @{ car: int, cdr: LinkList };
+
+overload append = LinkList + LinkList;
+overload from_array = [int]: LinkList;
 
 let node(value: int) = memcpy(@{ car: value, cdr: LinkList! });
 let append(self: LinkList, other: LinkList) = {
@@ -73,23 +79,34 @@ let clone(self: LinkList) = {
     };
     object
 };
+let from_array(values: [int]) = {
+    let list = node(values[0]);
+    let length = values.arrlen();
+    let index = 1;
+    while index < length loop {
+        let list + node(values[index]);
+        let index + 1
+    };
+    list
+};
 
-overload append = LinkList + LinkList;
-
-let a = node(1);
-let b = node(2).append(node(3));
-a + b + b.clone()
+let a = node(100);
+let b = [1, 2, 3]: LinkList;
+a.clone().append(b) + a
 ```
 
 型推論サマリーの出力 (`lumo example/list.lm --summary`)
 ```
 # Type Inference Summary
 Functions:
+ - arrlen(0: [LinkList]): int
  - node(value: int): LinkList
  - append(self: LinkList, other: LinkList): LinkList
  - clone(self: LinkList): LinkList
+ - from_array(values: [int]): LinkList
 Overloads:
  - append: LinkList + LinkList
+ - from_array: [int] : LinkList
 Variables:
  - a: LinkList
  - b: LinkList
@@ -99,9 +116,3 @@ Aliases:
 Macros:
 Returns: LinkList
 ```
-
-その他のサンプルは `example/` ディレクトリにあります。
-
----
-
-*Happy Hacking!*
