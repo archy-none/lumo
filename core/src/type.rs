@@ -93,7 +93,7 @@ impl Type {
         }
         match self {
             Type::Alias(name) => {
-                let Some(typ) = ctx.type_alias.get(name).cloned() else {
+                let Some(typ) = ctx.alias.get(name).cloned() else {
                     let msg = format!("undefined type alias `{name}`");
                     ctx.error = Some(msg);
                     return None;
@@ -125,7 +125,7 @@ impl Type {
             ),
             _ => self.clone(),
         };
-        let mut aliases = ctx.type_alias.iter();
+        let mut aliases = ctx.alias.iter();
         if let Some((alias, _)) = aliases.find(|(_, v)| **v == typ) {
             if *alias != Type::Any.format() {
                 Type::Alias(alias.clone())
@@ -145,10 +145,10 @@ impl Type {
             (Type::String, Type::String) => true,
             (Type::Void, Type::Void) => true,
             (Type::Any, typ) | (typ, Type::Any) => {
-                if let Some(any) = ctx.type_alias.get(&Type::Any.format()) {
+                if let Some(any) = ctx.alias.get(&Type::Any.format()) {
                     typ == any
                 } else {
-                    ctx.type_alias.insert(Type::Any.format(), typ.clone());
+                    ctx.alias.insert(Type::Any.format(), typ.clone());
                     true
                 }
             }
@@ -164,7 +164,7 @@ impl Type {
 
     pub fn polymorphism(&self, ctx: &mut Compiler) -> Option<Type> {
         match self {
-            Type::Any => ctx.type_alias.swap_remove(&Type::Any.format()),
+            Type::Any => ctx.alias.swap_remove(&Type::Any.format()),
             Type::Dict(dict) => Some(Type::Dict(
                 dict.iter()
                     .map(|(key, typ)| Some((key.clone(), typ.polymorphism(ctx)?)))
