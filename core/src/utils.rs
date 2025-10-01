@@ -55,7 +55,6 @@ macro_rules! type_check {
     ($lhs: expr, $rhs: expr, $ctx: expr) => {{
         let lhs = $lhs.infer($ctx)?.infer($ctx)?;
         let rhs = $rhs.infer($ctx)?.infer($ctx)?;
-        dbg!(&$ctx.alias, &lhs, &rhs);
         if lhs.compare(&rhs, $ctx) {
             Some(lhs.clone())
         } else {
