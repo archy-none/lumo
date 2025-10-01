@@ -44,7 +44,7 @@ macro_rules! expand_global {
 macro_rules! is_ptr {
     ($typ: expr, $ctx: expr) => {
         matches!(
-            $typ.type_infer($ctx)?,
+            $typ.infer($ctx)?,
             Type::String | Type::Array(_) | Type::Dict(_)
         )
     };
@@ -53,8 +53,8 @@ macro_rules! is_ptr {
 #[macro_export]
 macro_rules! type_check {
     ($lhs: expr, $rhs: expr, $ctx: expr) => {{
-        let lhs = $lhs.type_infer($ctx)?.type_infer($ctx)?;
-        let rhs = $rhs.type_infer($ctx)?.type_infer($ctx)?;
+        let lhs = $lhs.infer($ctx)?.infer($ctx)?;
+        let rhs = $rhs.infer($ctx)?.infer($ctx)?;
         if lhs.compare(&rhs, $ctx) {
             Some(lhs.clone())
         } else {
@@ -77,8 +77,8 @@ macro_rules! correct {
         } else {
             let msg = format!(
                 "can't this operation between {} and {}",
-                $lhs.type_infer($ctx)?.format(),
-                $rhs.type_infer($ctx)?.format()
+                $lhs.infer($ctx)?.format(),
+                $rhs.infer($ctx)?.format()
             );
             $ctx.error = Some(msg);
             None
@@ -89,7 +89,7 @@ macro_rules! correct {
 #[macro_export]
 macro_rules! compile_return {
     ($ret: expr, $ctx: expr) => {{
-        let ret = $ret.type_infer($ctx)?;
+        let ret = $ret.infer($ctx)?;
         if let Type::Void = ret {
             String::new()
         } else {
@@ -126,7 +126,7 @@ macro_rules! compile_op {
         format!("({ret}.{oper} {lhs} {rhs})",)
     }};
     ($oper: expr, $ctx: expr, $term: expr) => {{
-        let ret = $term.type_infer($ctx)?.compile($ctx)?;
+        let ret = $term.infer($ctx)?.compile($ctx)?;
         format!("({}.{} {})", ret, $oper, $term.compile($ctx)?)
     }};
 }
@@ -165,14 +165,14 @@ macro_rules! overload {
     ($self: expr, $ctx: expr, $method: ident) => {{
         let mut overload = || {
             if let Some((lhs, rhs)) = $self.binop_term() {
-                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx);
-                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx);
+                let lhs_typ = lhs.infer($ctx)?.restore_alias($ctx);
+                let rhs_typ = rhs.infer($ctx)?.restore_alias($ctx);
                 let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
                 let func = key_from_value!(&$ctx.overload, key)?;
                 Some(Expr::Call(func.clone(), vec![lhs, rhs]).$method($ctx))
             } else if let Op::Cast(lhs, rhs) = $self.clone() {
-                let lhs_typ = lhs.type_infer($ctx)?.compress_alias($ctx);
-                let rhs_typ = rhs.type_infer($ctx)?.compress_alias($ctx);
+                let lhs_typ = lhs.infer($ctx)?.restore_alias($ctx);
+                let rhs_typ = rhs.infer($ctx)?.restore_alias($ctx);
                 let key = ($self.get_overload_id()?, (lhs_typ, rhs_typ));
                 let func = key_from_value!(&$ctx.overload, key)?;
                 Some(Expr::Call(func.clone(), vec![lhs]).$method($ctx))
@@ -200,7 +200,7 @@ macro_rules! check_args {
                 $ctx.error = Some(msg.to_string());
                 return None;
             };
-            if let Some(typ) = typ.type_infer($ctx) {
+            if let Some(typ) = typ.infer($ctx) {
                 $ctx.argument.insert(name.to_string(), typ);
             } else {
                 $ctx.argument.insert(name.to_string(), typ);
