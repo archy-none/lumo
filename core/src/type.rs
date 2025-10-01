@@ -148,7 +148,9 @@ impl Type {
                 if let Some(any) = ctx.alias.get(&Type::Any.format()) {
                     typ == any
                 } else {
-                    ctx.alias.insert(Type::Any.format(), typ.clone());
+                    let name = Type::Any.format() + &ctx.counter.to_string();
+                    ctx.alias.insert(name, typ.clone());
+                    ctx.counter += 1;
                     true
                 }
             }
@@ -164,7 +166,11 @@ impl Type {
 
     pub fn polymorphism(&self, ctx: &mut Compiler) -> Option<Type> {
         match self {
-            Type::Any => ctx.alias.swap_remove(&Type::Any.format()),
+            Type::Any => {
+                let name = Type::Any.format() + &ctx.counter.to_string();
+                ctx.counter -= 1;
+                ctx.alias.swap_remove(&name)
+            }
             Type::Dict(dict) => Some(Type::Dict(
                 dict.iter()
                     .map(|(key, typ)| Some((key.clone(), typ.polymorphism(ctx)?)))
