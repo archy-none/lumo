@@ -64,7 +64,7 @@ impl Node for Value {
                 result
             }
             Value::Array(array) => {
-                let Type::Array(inner_type) = self.type_infer(ctx)? else {
+                let Type::Array(inner_type) = self.infer(ctx)? else {
                     return None;
                 };
                 let array = array.clone();
@@ -94,7 +94,7 @@ impl Node for Value {
                     result.push(poke.compile(ctx)?);
                     ctx.allocator += BYTES;
                     for elm in array {
-                        type_check!(inner_type, elm.type_infer(ctx)?, ctx)?;
+                        type_check!(inner_type, elm.infer(ctx)?, ctx)?;
                         let poke = Expr::Poke(value(ctx.allocator), Box::new(elm));
                         result.push(poke.compile(ctx)?);
                         ctx.allocator += BYTES
@@ -104,13 +104,13 @@ impl Node for Value {
             }
             Value::Dict(dict) => {
                 let mut result: Vec<_> = vec![];
-                let Type::Dict(_) = self.type_infer(ctx)? else {
+                let Type::Dict(_) = self.infer(ctx)? else {
                     return None;
                 };
 
                 let mut prestore = IndexMap::new();
                 for (name, elm) in dict {
-                    let typ = elm.type_infer(ctx)?;
+                    let typ = elm.infer(ctx)?;
                     if is_ptr!(typ, ctx) {
                         prestore.insert(name, elm.compile(ctx)?);
                     }
@@ -118,7 +118,7 @@ impl Node for Value {
 
                 let pointer = ctx.allocator;
                 for (name, elm) in dict {
-                    let typ = elm.type_infer(ctx)?;
+                    let typ = elm.infer(ctx)?;
                     result.push(format!(
                         "({typ}.store {addr} {value})",
                         typ = typ.clone().compile(ctx)?,
@@ -131,7 +131,7 @@ impl Node for Value {
                 join!([value(pointer).compile(ctx)?, join!(result)])
             }
             Value::Enum(typ, key) => {
-                let typ = typ.type_infer(ctx)?;
+                let typ = typ.infer(ctx)?;
                 let Type::Enum(enum_type) = typ.clone() else {
                     let error_message = format!("can't access enumerator to {}", typ.format());
                     ctx.error = Some(error_message);
@@ -147,16 +147,16 @@ impl Node for Value {
         })
     }
 
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
         Some(match self {
             Value::Number(_) => Type::Number,
             Value::Integer(_) => Type::Integer,
             Value::Bool(_) => Type::Bool,
             Value::String(_) => Type::String,
             Value::Array(e) => {
-                let origin = e.first()?.type_infer(ctx)?;
+                let origin = e.first()?.infer(ctx)?;
                 for e in e.iter().skip(1) {
-                    let typ = e.type_infer(ctx)?;
+                    let typ = e.infer(ctx)?;
                     if typ != origin {
                         let errmsg = "array elements must be of the same type";
                         ctx.error = Some(errmsg.to_owned());
@@ -168,12 +168,12 @@ impl Node for Value {
             Value::Dict(dict) => {
                 let mut result = IndexMap::new();
                 for (name, elm) in dict {
-                    let typ = elm.type_infer(ctx)?;
+                    let typ = elm.infer(ctx)?;
                     result.insert(name.to_string(), typ.clone());
                 }
                 Type::Dict(result)
             }
-            Value::Enum(typ, _) => typ.type_infer(ctx)?,
+            Value::Enum(typ, _) => typ.infer(ctx)?,
         })
     }
 }
