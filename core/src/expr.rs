@@ -125,7 +125,7 @@ impl Node for Expr {
                 } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     let mut old_types = IndexMap::new();
                     for (param, arg) in params.iter().zip(args) {
-                        let typ = arg.type_infer(ctx)?;
+                        let typ = arg.infer(ctx)?;
                         if let Some(original_var) = ctx.variable.get(param).cloned() {
                             old_types.insert(param.to_owned(), original_var);
                         }
@@ -143,7 +143,7 @@ impl Node for Expr {
                 }
             }
             Expr::Index(array, index) => {
-                let typ = array.type_infer(ctx)?;
+                let typ = array.infer(ctx)?;
                 let Type::Array(inner_typ) = typ.clone() else {
                     return None;
                 };
@@ -151,7 +151,7 @@ impl Node for Expr {
                 Expr::Peek(addr, *inner_typ).compile(ctx)?
             }
             Expr::Field(expr, key) => {
-                let typ = expr.type_infer(ctx)?;
+                let typ = expr.infer(ctx)?;
                 let Type::Dict(dict) = typ.clone() else {
                     return None;
                 };
@@ -171,16 +171,16 @@ impl Node for Expr {
                 format!("({typ}.load {addr})")
             }
             Expr::Poke(addr, expr) => {
-                let typ = expr.type_infer(ctx)?;
+                let typ = expr.infer(ctx)?;
                 let [typ, addr, code] = [typ.compile(ctx)?, addr.compile(ctx)?, expr.compile(ctx)?];
                 format!("({typ}.store {addr} {code})")
             }
         })
     }
 
-    fn type_infer(&self, ctx: &mut Compiler) -> Option<Type> {
+    fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
         Some(match self {
-            Expr::Operator(oper) => oper.type_infer(ctx)?,
+            Expr::Operator(oper) => oper.infer(ctx)?,
             Expr::Variable(name) => {
                 if let Some(global) = ctx.global.get(name) {
                     global.clone()
@@ -193,7 +193,7 @@ impl Node for Expr {
                     return None;
                 }
             }
-            Expr::Literal(literal) => literal.type_infer(ctx)?,
+            Expr::Literal(literal) => literal.infer(ctx)?,
             Expr::Call(name, args) => {
                 macro_rules! arglen_check {
                     ($params: expr, $typ: literal) => {
@@ -215,10 +215,10 @@ impl Node for Expr {
                     arglen_check!(params, "macro");
                     let var_ctx = ctx.variable.clone();
                     for (params, arg) in params.iter().zip(args) {
-                        let typ = arg.type_infer(ctx)?;
+                        let typ = arg.infer(ctx)?;
                         ctx.variable.insert(params.to_owned(), typ);
                     }
-                    let typ = expr.type_infer(ctx)?;
+                    let typ = expr.infer(ctx)?;
                     ctx.variable = var_ctx;
                     typ
                 } else {
@@ -229,32 +229,32 @@ impl Node for Expr {
                 }
             }
             Expr::Index(arr, _) => {
-                let infered = arr.type_infer(ctx)?;
-                let Some(Type::Array(typ)) = infered.type_infer(ctx) else {
+                let infered = arr.infer(ctx)?;
+                let Some(Type::Array(typ)) = infered.infer(ctx) else {
                     let error_message = format!("can't index access to {}", infered.format());
                     ctx.error = Some(error_message);
                     return None;
                 };
-                typ.type_infer(ctx)?
+                typ.infer(ctx)?
             }
             Expr::Field(dict, key) => {
-                let infered = dict.type_infer(ctx)?.type_infer(ctx)?;
+                let infered = dict.infer(ctx)?.infer(ctx)?;
                 if let Type::Dict(dict) = infered.clone() {
                     let Some(typ) = dict.get(key) else {
                         let error_message = format!("{} haven't field `{key}`", infered.format());
                         ctx.error = Some(error_message);
                         return None;
                     };
-                    typ.type_infer(ctx)?
+                    typ.infer(ctx)?
                 } else {
                     let error_message = format!("can't field access to {}", infered.format());
                     ctx.error = Some(error_message);
                     return None;
                 }
             }
-            Expr::Block(block) => block.type_infer(ctx)?,
+            Expr::Block(block) => block.infer(ctx)?,
             Expr::Clone(from) => {
-                let typ = from.type_infer(ctx)?;
+                let typ = from.infer(ctx)?;
                 if is_ptr!(typ, ctx) {
                     typ
                 } else {
@@ -264,12 +264,12 @@ impl Node for Expr {
                 }
             }
             Expr::Peek(expr, typ) => {
-                expr.type_infer(ctx)?;
+                expr.infer(ctx)?;
                 typ.clone()
             }
             Expr::Poke(addr, expr) => {
-                addr.type_infer(ctx)?;
-                expr.type_infer(ctx)?;
+                addr.infer(ctx)?;
+                expr.infer(ctx)?;
                 Type::Void
             }
         })
@@ -278,7 +278,7 @@ impl Node for Expr {
 
 impl Expr {
     pub fn object_size(&self, ctx: &mut Compiler) -> Option<Expr> {
-        let typ = self.type_infer(ctx)?;
+        let typ = self.infer(ctx)?;
         match typ {
             Type::Dict(dict) => Some(Expr::Literal(Value::Integer(dict.len() as i32 * BYTES))),
             Type::Array(_) => Some(Expr::Operator(Box::new(Op::Add(
