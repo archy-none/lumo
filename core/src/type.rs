@@ -87,8 +87,9 @@ impl Node for Type {
 impl Type {
     pub fn solve_alias(&self, ctx: &mut Compiler, xpct: Vec<Type>) -> Option<Type> {
         for x in &xpct {
-            if x.restore_alias(ctx) == self.restore_alias(ctx) {
-                return Some(self.restore_alias(ctx));
+            let result = self.restore_alias(ctx);
+            if x.restore_alias(ctx) == result {
+                return Some(result);
             }
         }
         match self {
