@@ -45,7 +45,7 @@ macro_rules! is_ptr {
     ($typ: expr, $ctx: expr) => {
         matches!(
             $typ.infer($ctx)?,
-            Type::String | Type::Array(_) | Type::Dict(_)
+            Type::String | Type::Array(_) | Type::Dict(_) | Type::Alias(_)
         )
     };
 }
