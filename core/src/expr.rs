@@ -205,7 +205,6 @@ impl Node for Expr {
                         }
                     };
                 }
-
                 if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned() {
                     arglen_check!(function.arguments, "function");
                     let func = |(arg, typ): (&Expr, &Type)| type_check!(arg, typ, ctx);
