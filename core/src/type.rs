@@ -64,19 +64,17 @@ impl Node for Type {
     }
 
     fn compile(&self, ctx: &mut Compiler) -> Option<String> {
-        Some(
-            match self.infer(ctx)? {
-                Type::Number => "f32",
-                Type::Integer
-                | Type::Bool
-                | Type::String
-                | Type::Array(_)
-                | Type::Dict(_)
-                | Type::Enum(_) => "i32",
-                _ => return None,
-            }
-            .to_string(),
-        )
+        Some(match self.infer(ctx)? {
+            Type::Number => "f32".to_string(),
+            Type::Integer
+            | Type::Bool
+            | Type::String
+            | Type::Array(_)
+            | Type::Dict(_)
+            | Type::Enum(_) => "i32".to_string(),
+            Type::Any => ctx.alias.get(&Type::Any.format())?.clone().compile(ctx)?,
+            _ => return None,
+        })
     }
 
     fn infer(&self, ctx: &mut Compiler) -> Option<Type> {
@@ -144,6 +142,7 @@ impl Type {
             (Type::Bool, Type::Bool) => true,
             (Type::String, Type::String) => true,
             (Type::Void, Type::Void) => true,
+            (Type::Any, Type::Any) => true,
             (Type::Any, typ) | (typ, Type::Any) => {
                 if let Some(any) = ctx.alias.get(&Type::Any.format()) {
                     typ == any
