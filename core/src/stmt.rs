@@ -119,15 +119,16 @@ impl Node for Stmt {
             ))
         } else if let Some(source) = source.strip_prefix("import ") {
             let (body, ret) = source.rsplit_once(":").or(Some((source, "void")))?;
-            let (name, args) = body.trim().replace(")", "").split_once("(")?;
-            let args = tokenize(args, &[","], false, true, false)?
-                .iter()
-                .map(|x| Type::parse(x))
-                .collect::<Option<Vec<Type>>>()?;
+            let (name, args) = body.split_once("(")?;
+            dbg!(name, args);
             let mut name = name.trim().to_string();
             if !is_identifier(&mut name) {
                 return None;
             };
+            let args = tokenize(&args.trim().replace(")", ""), &[","], false, true, false)?
+                .iter()
+                .map(|x| Type::parse(x))
+                .collect::<Option<Vec<Type>>>()?;
             Some(Stmt::Import((name, args, Type::parse(ret)?)))
         } else if let Some(source) = source.strip_prefix("return ") {
             Some(Stmt::Return(Some(Expr::parse(source)?)))
@@ -246,22 +247,13 @@ impl Node for Stmt {
                 _ => return None,
             },
             Stmt::Try(expr, catch) => expr.compile(ctx).or(catch.compile(ctx))?,
-            Stmt::Import(module, funcs) => {
-                let (name, args, ret_typ) = funcs.clone();
-                let mut export = name.clone();
-                if let Some(module) = module {
-                    export = format!("{module}.{name}")
-                };
-                let function = Function {
-                    variables: IndexMap::new(),
-                    arguments: args.into_iter().collect(),
-                    returns: ret_typ.clone(),
-                };
+            Stmt::Import(funcs) => {
+                let (name, _, ret_typ) = funcs.clone();
+                let function = ctx.function.get(&name)?.clone();
                 let sig = compile_args!(function, ctx);
                 let ret = compile_return!(ret_typ, ctx);
-                ctx.import.push(format!(
-                    "(import \"env\" \"{export}\" (func ${name} {sig} {ret}))"
-                ));
+                let code = format!("(import \"env\" \"{name}\" (func ${name} {sig} {ret}))");
+                ctx.import.push(code);
                 String::new()
             }
             Stmt::Return(Some(expr)) => {
@@ -381,17 +373,19 @@ impl Node for Stmt {
                 Type::Void
             }
             Stmt::Try(expr, catch) => expr.type_infer(ctx).or(catch.type_infer(ctx))?,
-            Stmt::Import(_module, funcs) => {
-                let (fn_name, args, ret_typ) = funcs;
-                let mut arg_map = IndexMap::new();
-                for (name, typ) in args.iter() {
-                    arg_map.insert(name.to_string(), typ.clone());
-                }
+            Stmt::Import(function) => {
+                let (fn_name, args, ret_typ) = function;
                 ctx.function.insert(
                     fn_name.clone(),
                     Function {
                         variables: IndexMap::new(),
-                        arguments: arg_map,
+                        arguments: {
+                            let mut arg_map = IndexMap::new();
+                            for (name, typ) in args.iter().enumerate() {
+                                arg_map.insert(name.to_string(), typ.clone());
+                            }
+                            arg_map
+                        },
                         returns: ret_typ.clone(),
                     },
                 );
