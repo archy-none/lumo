@@ -12,7 +12,7 @@ Lumoは、独自のバックエンドを開発する事によりLLVMなどの既
 ### JavaScript多相関数での演算子のオーバーロード
 ```
 Lumo REPL
-> load append(a: [any], b: [any]): [any]
+> import append([any], [any]): [any]
 > overload append = [any] + [any]
 > [1, 2] + [3]
 [ 1, 2, 3 ]
