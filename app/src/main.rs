@@ -49,12 +49,12 @@ fn main() {
                 func.arguments
                     .iter()
                     .map(|(name, arg)| {
-                        let typ = arg.compress_alias(&compiler).format();
+                        let typ = arg.restore_alias(&compiler).format();
                         format!("{name}: {typ}")
                     })
                     .collect::<Vec<_>>()
                     .join(", "),
-                func.returns.compress_alias(&compiler).format()
+                func.returns.restore_alias(&compiler).format()
             );
         }
         println!("Overloads:");
@@ -65,11 +65,11 @@ fn main() {
         }
         println!("Variables:");
         for (name, typ) in &compiler.variable {
-            println!(" - {name}: {}", typ.compress_alias(&compiler).format());
+            println!(" - {name}: {}", typ.restore_alias(&compiler).format());
         }
         println!("Globals:");
         for (name, typ) in &compiler.global {
-            println!(" - {name}: {}", typ.compress_alias(&compiler).format());
+            println!(" - {name}: {}", typ.restore_alias(&compiler).format());
         }
         println!("Aliases:");
         for (name, typ) in &compiler.type_alias {
@@ -81,7 +81,7 @@ fn main() {
         for (name, (args, _)) in &compiler.r#macro {
             println!(" - {name}({})", args.join(", "));
         }
-        let returns = compiler.result.compress_alias(&compiler).format();
+        let returns = compiler.result.restore_alias(&compiler).format();
         println!("Returns: {returns}");
     }
 
