@@ -10,10 +10,10 @@ export function read(instance, type, value) {
         return value != 0;
     } else if (type == "str") {
         if (value == -1) return null;
-        let stringLength = value;
-        while (memoryView[stringLength] != 0) stringLength++;
+        let index = value;
+        while (memoryView[index] != 0) index++;
 
-        const stringBytes = memoryView.slice(value, stringLength);
+        const stringBytes = memoryView.slice(value, index);
         const textDecoder = new TextDecoder("utf-8");
         return textDecoder.decode(stringBytes);
     } else if (type.type == "array") {
