@@ -72,7 +72,12 @@ impl Node for Type {
             | Type::Array(_)
             | Type::Dict(_)
             | Type::Enum(_) => "i32".to_string(),
-            Type::Any => ctx.alias.get(&Type::Any.format())?.clone().compile(ctx)?,
+            Type::Any => ctx
+                .alias
+                .get(&Type::Any.format())
+                .unwrap_or(&Type::Integer)
+                .clone()
+                .compile(ctx)?,
             _ => return None,
         })
     }
