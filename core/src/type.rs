@@ -94,8 +94,7 @@ impl Type {
         match self {
             Type::Alias(name) => {
                 let Some(typ) = ctx.alias.get(name).cloned() else {
-                    let msg = format!("undefined type alias `{name}`");
-                    ctx.error = Some(msg);
+                    ctx.error = Some(format!("undefined type alias `{name}`"));
                     return None;
                 };
                 typ.solve_alias(ctx, xpct.clone())
