@@ -220,7 +220,7 @@ impl Node for Expr {
                     }
                     let typ = expr.infer(ctx)?;
                     ctx.variable = var_ctx;
-                    typ
+                    typ.polymorphism(ctx)
                 } else {
                     ctx.error = Some(format!(
                         "function or macro `{name}` you want to call is not defined"
