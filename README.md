@@ -106,7 +106,7 @@ let b = [1, 2, 3]: LinkList;
 a.clone().append(b) + a
 ```
 
-型推論サマリーの出力 (`lumo example/list.lm --summary`)
+型推論サマリーの出力
 ```yaml
 # Type Inference Summary
 Functions:
