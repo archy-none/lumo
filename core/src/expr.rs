@@ -6,6 +6,7 @@ pub enum Expr {
     Variable(String),
     Operator(Box<Op>),
     Call(String, Vec<Expr>),
+    Macro(String, Vec<Type>),
     Index(Box<Expr>, Box<Expr>),
     Field(Box<Expr>, String),
     Block(Block),
@@ -142,6 +143,27 @@ impl Node for Expr {
                     return None;
                 }
             }
+            Expr::Macro(name, args) => {
+                if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
+                    let mut old_types = IndexMap::new();
+                    for (param, arg) in params.iter().zip(args) {
+                        let typ = arg.infer(ctx)?;
+                        if let Some(original_var) = ctx.alias.get(param).cloned() {
+                            old_types.insert(param.to_owned(), original_var);
+                        }
+                        ctx.alias.insert(param.to_owned(), typ);
+                    }
+                    let mut body = expr.compile(ctx)?;
+                    for (param, arg) in params.iter().zip(args) {
+                        let var = Expr::Variable(param.to_owned()).compile(ctx)?;
+                        body = body.replace(&var, &arg.compile(ctx)?);
+                    }
+                    ctx.alias.extend(old_types);
+                    body
+                } else {
+                    return None;
+                }
+            }
             Expr::Index(array, index) => {
                 let typ = array.infer(ctx)?;
                 let Type::Array(inner_typ) = typ.clone() else {
@@ -195,36 +217,31 @@ impl Node for Expr {
             }
             Expr::Literal(literal) => literal.infer(ctx)?,
             Expr::Call(name, args) => {
-                macro_rules! arglen_check {
-                    ($params: expr, $typ: literal) => {
-                        if args.len() != $params.len() {
-                            let (typ, paramlen, arglen) = ($typ, $params.len(), args.len());
-                            ctx.error = Some(format!("arguments of {typ} `{name}` length should be {paramlen}, but passed {arglen} values"));
-                            return None;
-                        }
-                    };
-                }
                 if let Some(function) = ctx.function.get(name).or(ctx.export.get(name)).cloned() {
-                    arglen_check!(function.arguments, "function");
+                    arglen_check!(name, args, function.arguments, "function", ctx);
                     args.iter()
                         .zip(function.arguments.values())
                         .map(|(arg, typ)| type_check!(arg, typ, ctx))
                         .collect::<Option<Vec<_>>>()?;
                     function.returns.polymorphism(ctx)
-                } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
-                    arglen_check!(params, "macro");
-                    let var_ctx = ctx.variable.clone();
+                } else {
+                    ctx.error = Some(format!("function `{name}` you want to call is not defined"));
+                    return None;
+                }
+            }
+            Expr::Macro(name, args) => {
+                if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
+                    arglen_check!(name, args, params, "macro", ctx);
+                    let var_ctx = ctx.alias.clone();
                     for (params, arg) in params.iter().zip(args) {
                         let typ = arg.infer(ctx)?;
-                        ctx.variable.insert(params.to_owned(), typ);
+                        ctx.alias.insert(params.to_owned(), typ);
                     }
                     let typ = expr.infer(ctx)?;
-                    ctx.variable = var_ctx;
+                    ctx.alias = var_ctx;
                     typ.polymorphism(ctx)
                 } else {
-                    ctx.error = Some(format!(
-                        "function or macro `{name}` you want to call is not defined"
-                    ));
+                    ctx.error = Some(format!("macro `{name}` you want to call is not defined"));
                     return None;
                 }
             }
