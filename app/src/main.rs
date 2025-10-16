@@ -78,7 +78,7 @@ fn main() {
             }
         }
         println!("Macros:");
-        for (name, (args, _)) in &compiler.r#macro {
+        for (name, (args, _)) in &compiler.module {
             println!(" - {name}({})", args.join(", "));
         }
         let returns = compiler.result.restore_alias(&compiler).format();
