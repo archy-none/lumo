@@ -369,7 +369,7 @@ impl Node for Stmt {
             }
             Stmt::Macro(name, args, expr) => {
                 let value = (args.clone(), expr.clone());
-                ctx.r#macro.insert(name.to_owned(), value);
+                ctx.module.insert(name.to_owned(), value);
                 Type::Void
             }
             Stmt::Try(expr, catch) => expr.infer(ctx).or(catch.infer(ctx))?,
