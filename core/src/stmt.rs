@@ -106,7 +106,7 @@ impl Node for Stmt {
                 return None;
             };
             Some(Stmt::Type(name, Type::parse(value)?))
-        } else if let Some(source) = source.strip_prefix("macro ") {
+        } else if let Some(source) = source.strip_prefix("module ") {
             let (head, value) = source.split_once("=")?;
             let Expr::Call(name, args) = Expr::parse(head)? else {
                 return None;
