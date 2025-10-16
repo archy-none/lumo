@@ -137,7 +137,7 @@ impl Node for Expr {
                 )
             ),
             Expr::Macro(name, args) => {
-                if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
+                if let Some((params, expr)) = ctx.module.get(name).cloned() {
                     let mut old_types = IndexMap::new();
                     for (param, arg) in params.iter().zip(args) {
                         let typ = arg.infer(ctx)?;
@@ -223,7 +223,7 @@ impl Node for Expr {
                 }
             }
             Expr::Macro(name, args) => {
-                if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
+                if let Some((params, expr)) = ctx.module.get(name).cloned() {
                     arglen_check!(name, args, params, "macro", ctx);
                     let var_ctx = ctx.alias.clone();
                     for (params, arg) in params.iter().zip(args) {
