@@ -42,6 +42,8 @@ pub struct Function {
 /// Context in compiling
 #[derive(Debug, Clone)]
 pub struct Compiler {
+    /// Identifier counter
+    pub count: usize,
     /// Address tracker
     pub allocator: i32,
     /// Code that imports external module
@@ -77,6 +79,7 @@ pub struct Compiler {
 impl Compiler {
     pub fn new() -> Self {
         Compiler {
+            count: 0,
             allocator: 0,
             import: vec![],
             data: vec![],
