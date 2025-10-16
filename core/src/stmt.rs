@@ -211,7 +211,7 @@ impl Node for Stmt {
                         pub = if let Scope::Global = scope { format!("(export \"{name}\")") } else { String::new() },
                         body = value.compile(ctx)?, locals = expand_local!(ctx)
                     );
-                    ctx.declare.push(code);
+                    ctx.declare.insert(name.to_owned(), code);
                     ctx.variable = var_ctx;
                     ctx.argument = arg_ctx;
                     String::new()
