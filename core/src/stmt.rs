@@ -8,7 +8,7 @@ pub enum Stmt {
     While(Expr, Expr),
     Type(String, Type),
     Try(Expr, Box<Stmt>),
-    Macro(String, Vec<String>, Expr),
+    Module(String, Vec<String>, Expr),
     Overload(usize, (Type, Type), String),
     Import(Signature),
     Return(Option<Expr>),
@@ -118,7 +118,7 @@ impl Node for Stmt {
                     Some(x.clone())
                 })
                 .collect::<Option<Vec<_>>>()?;
-            Some(Stmt::Macro(name, args, Expr::parse(value)?))
+            Some(Stmt::Module(name, args, Expr::parse(value)?))
         } else if let Some(source) = source.strip_prefix("overload ") {
             let (name, value) = source.split_once("=")?;
             tokens = tokenize(value, SPACE.as_ref(), true, true, false)?;
@@ -273,7 +273,9 @@ impl Node for Stmt {
                 format!("(return {})", expr.compile(ctx)?)
             }
             Stmt::Return(_) => "(return)".to_string(),
-            Stmt::Type(_, _) | Stmt::Macro(_, _, _) | Stmt::Overload(_, (_, _), _) => String::new(),
+            Stmt::Type(_, _) | Stmt::Module(_, _, _) | Stmt::Overload(_, (_, _), _) => {
+                String::new()
+            }
         })
     }
 
@@ -380,7 +382,7 @@ impl Node for Stmt {
                 ctx.alias.insert(name.to_string(), value.clone());
                 Type::Void
             }
-            Stmt::Macro(name, args, expr) => {
+            Stmt::Module(name, args, expr) => {
                 let value = (args.clone(), expr.clone());
                 ctx.module.insert(name.to_owned(), value);
                 Type::Void
