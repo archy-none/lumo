@@ -210,6 +210,20 @@ macro_rules! check_args {
 }
 
 #[macro_export]
+macro_rules! arglen_check {
+    ($name: expr, $args: expr, $params: expr, $typ: literal, $ctx: expr) => {
+        if $args.len() != $params.len() {
+            let (typ, paramlen, arglen) = ($typ, $params.len(), $args.len());
+            $ctx.error = Some(format!(
+                "arguments of {typ} `{}` length should be {paramlen}, but passed {arglen} values",
+                $name
+            ));
+            return None;
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! key_from_value {
     ($map: expr, $value: expr) => {
         $map.into_iter()
