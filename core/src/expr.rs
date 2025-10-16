@@ -67,21 +67,33 @@ impl Node for Expr {
         } else if token.contains("(") && token.ends_with(")") {
             let token = tokenize(&token, &["("], false, true, true)?;
             let args = token.last()?.get(1..token.last()?.len() - 1)?;
-            let args = tokenize(args, &[","], false, true, false)?
-                .iter()
-                .map(|i| Expr::parse(&i))
-                .collect::<Option<Vec<_>>>()?;
+            let args = tokenize(args, &[","], false, true, false)?;
             let name = token.get(..token.len() - 1)?.concat();
-            let (name, args) = match Expr::parse(&name)? {
-                Expr::Variable(name) => (name, args),
-                Expr::Field(obj, name) => (name, [vec![*obj], args].concat()),
-                _ => return None,
-            };
-            if name == "memcpy" {
-                let [obj] = args.as_slice() else { return None };
-                return Some(Expr::Clone(Box::new(obj.clone())));
+            if let Some(name) = name.strip_suffix("!") {
+                let args = args
+                    .iter()
+                    .map(|i| Type::parse(&i))
+                    .collect::<Option<Vec<_>>>()?;
+                let Expr::Variable(name) = Expr::parse(&name)? else {
+                    return None;
+                };
+                Some(Expr::Macro(name, args))
+            } else {
+                let args = args
+                    .iter()
+                    .map(|i| Expr::parse(&i))
+                    .collect::<Option<Vec<_>>>()?;
+                let (name, args) = match Expr::parse(&name)? {
+                    Expr::Variable(name) => (name, args),
+                    Expr::Field(obj, name) => (name, [vec![*obj], args].concat()),
+                    _ => return None,
+                };
+                if name == "memcpy" {
+                    let [obj] = args.as_slice() else { return None };
+                    return Some(Expr::Clone(Box::new(obj.clone())));
+                }
+                Some(Expr::Call(name, args))
             }
-            Some(Expr::Call(name, args))
         // Dictionary access `dict.field`
         } else if token.contains(".") {
             let (dict, field) = token.rsplit_once(".")?;
