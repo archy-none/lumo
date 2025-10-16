@@ -128,33 +128,14 @@ impl Node for Expr {
                 format!("({scope}.get ${name})",)
             }
             Expr::Literal(literal) => literal.compile(ctx)?,
-            Expr::Call(name, args) => {
-                if ctx.function.contains_key(name) || ctx.export.contains_key(name) {
-                    let args = args
-                        .iter()
+            Expr::Call(name, args) => format!(
+                "(call ${name} {})",
+                join!(
+                    args.iter()
                         .map(|x| x.compile(ctx))
-                        .collect::<Option<Vec<_>>>()?;
-                    format!("(call ${name} {})", join!(args))
-                } else if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
-                    let mut old_types = IndexMap::new();
-                    for (param, arg) in params.iter().zip(args) {
-                        let typ = arg.infer(ctx)?;
-                        if let Some(original_var) = ctx.variable.get(param).cloned() {
-                            old_types.insert(param.to_owned(), original_var);
-                        }
-                        ctx.variable.insert(param.to_owned(), typ);
-                    }
-                    let mut body = expr.compile(ctx)?;
-                    for (param, arg) in params.iter().zip(args) {
-                        let var = Expr::Variable(param.to_owned()).compile(ctx)?;
-                        body = body.replace(&var, &arg.compile(ctx)?);
-                    }
-                    ctx.variable.extend(old_types);
-                    body
-                } else {
-                    return None;
-                }
-            }
+                        .collect::<Option<Vec<_>>>()?
+                )
+            ),
             Expr::Macro(name, args) => {
                 if let Some((params, expr)) = ctx.r#macro.get(name).cloned() {
                     let mut old_types = IndexMap::new();
