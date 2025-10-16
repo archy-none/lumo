@@ -51,7 +51,7 @@ pub struct Compiler {
     /// Static string data
     pub data: Vec<String>,
     /// Set of function declare code
-    pub declare: Vec<String>,
+    pub declare: IndexMap<String, String>,
     /// Macro code that's processing in compile time
     pub r#macro: IndexMap<String, (Vec<String>, Expr)>,
     /// Module name and its identifier number
@@ -85,9 +85,9 @@ impl Compiler {
             allocator: 0,
             import: vec![],
             data: vec![],
-            declare: vec![],
             error: None,
             in_while: false,
+            declare: IndexMap::new(),
             r#macro: IndexMap::new(),
             module: IndexMap::new(),
             overload: IndexMap::new(),
@@ -114,7 +114,7 @@ impl Compiler {
             ),
             import = join!(self.import),
             strings = join!(self.data),
-            declare = join!(self.declare),
+            declare = join!(self.declare.values().cloned().collect::<Vec<String>>()),
             global = expand_global!(self),
             memory = "(memory $mem (export \"mem\") 64)",
             memcpy = &format!(
