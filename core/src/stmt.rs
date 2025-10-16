@@ -61,6 +61,19 @@ impl Node for Stmt {
                 parse!(Expr, 0..r#catch),
                 Box::new(parse!(Stmt, r#catch + 1..)),
             ))
+        } else if let Some(source) = source.strip_prefix("use ") {
+            let token = tokenize(&source, &["("], false, true, true)?;
+            let args = token.last()?.get(1..token.last()?.len() - 1)?;
+            let args = tokenize(args, &[","], false, true, false)?;
+            let name = token.get(..token.len() - 1)?.concat();
+            let args = args
+                .iter()
+                .map(|i| Type::parse(&i))
+                .collect::<Option<Vec<_>>>()?;
+            let Expr::Variable(name) = Expr::parse(&name)? else {
+                return None;
+            };
+            Some(Stmt::Expr(Expr::Macro(name, args)))
         } else if let Some(token) = source.strip_prefix("let ") {
             if let Some((name, value)) = token.split_once("=") {
                 let (name, value) = (Expr::parse(name)?, Expr::parse(value)?);
