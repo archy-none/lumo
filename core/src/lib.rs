@@ -53,9 +53,7 @@ pub struct Compiler {
     /// Set of function declare code
     pub declare: IndexMap<String, String>,
     /// Macro code that's processing in compile time
-    pub r#macro: IndexMap<String, (Vec<String>, Expr)>,
-    /// Module name and its identifier number
-    pub module: IndexMap<String, usize>,
+    pub module: IndexMap<String, (Vec<String>, Expr)>,
     /// Operator overload code that's processing in compile time
     pub overload: IndexMap<String, (usize, (Type, Type))>,
     /// Type alias that's defined by user
@@ -88,7 +86,6 @@ impl Compiler {
             error: None,
             in_while: false,
             declare: IndexMap::new(),
-            r#macro: IndexMap::new(),
             module: IndexMap::new(),
             overload: IndexMap::new(),
             alias: IndexMap::new(),
