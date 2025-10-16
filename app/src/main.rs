@@ -77,7 +77,7 @@ fn main() {
                 println!(" - {name}: {}", typ.format());
             }
         }
-        println!("Macros:");
+        println!("Module:");
         for (name, (args, _)) in &compiler.module {
             println!(" - {name}({})", args.join(", "));
         }
